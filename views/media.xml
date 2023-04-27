@@ -1,0 +1,46 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="media_shopify_mint">
+      <field name="name">media shopify mint</field>
+      <field name="model">media.data</field>
+      <field name="arch" type="xml">
+        <tree>
+            <field name="media_id"/>
+             <field name="instagram_user"/>
+
+             <field name="media_url"/>
+
+            <field name="type"/>
+            <field name="caption"/>
+            <field name="permalink"/>
+             <field name="thumbnail_url"/>
+            <field name="created_date"/>
+            <field name="permalink"/>
+            <field name="selected_product"/>
+            <field name="media_like"/>
+             <field name="count_comment"/>
+            <field name="comment"/>
+        </tree>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="media_user_shopify_mint_action">
+      <field name="name">media action</field>
+      <field name="res_model">media.data</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- Top menu item -->
+
+    <menuitem name="Media Data" id="menu_media_shopify_mint_app" parent="menu_root"  action="media_user_shopify_mint_action"/>
+
+
+
+  </data>
+</odoo>

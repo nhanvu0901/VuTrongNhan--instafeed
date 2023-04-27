@@ -1,0 +1,35 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="product_shopify_mint">
+      <field name="name">product shopify mint</field>
+      <field name="model">product.data</field>
+      <field name="arch" type="xml">
+        <tree>
+           <field name="product_id"/>
+            <field name="product_img"/>
+            <field name="product_name"/>
+            <field name="media_select"/>
+            <field name="shopify_shop"/>
+        </tree>
+      </field>
+    </record>
+
+
+
+    <record model="ir.actions.act_window" id="product_user_shopify_mint_action">
+      <field name="name">product action</field>
+      <field name="res_model">product.data</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- Top menu item -->
+
+    <menuitem name="Product Data" id="menu_product_shopify_mint_app" parent="menu_root"  action="product_user_shopify_mint_action"/>
+
+
+
+  </data>
+</odoo>

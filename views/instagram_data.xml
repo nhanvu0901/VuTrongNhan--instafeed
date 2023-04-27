@@ -1,0 +1,68 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="instagram_user_shopify_mint">
+      <field name="name">Instagram User shopify mint</field>
+      <field name="model">instagram.user</field>
+      <field name="arch" type="xml">
+        <tree>
+             <field name="shopify_shop"/>
+
+             <field name="ins_access_token"/>
+<!--             <field name="cdn_tag"/>-->
+            <field name="user_id"/>
+            <field name="user_name"/>
+            <field name="media_url"/>
+             <field name="code"/>
+            <field name="media"/>
+            <field name="widget_data"/>
+            <field name="followers"/>
+            <field name="facebook_access_token"/>
+        </tree>
+      </field>
+    </record>
+
+        <data noupdate="1">
+              <record id="ir_cron_data_update_data_instagram" model="ir.cron">
+                    <field name="name">Update Instagram Data</field>
+                    <field name="model_id" ref="model_instagram_user"/>
+                    <field name="type">ir.actions.server</field>
+                    <field name="state">code</field>
+                    <field name="code">model.cr_update_instagram_media()</field>
+                     <field name="interval_number">1</field>
+                    <field name="interval_type">days</field>
+                    <field name="numbercall">-1</field>
+                </record>
+        </data>
+
+
+        <data noupdate="2">
+              <record id="ir_cron_data_refresh_long_live_tk_instagram" model="ir.cron">
+                    <field name="name">Refresh Long Live Token Instagram Data</field>
+                    <field name="model_id" ref="model_instagram_user"/>
+                    <field name="type">ir.actions.server</field>
+                    <field name="state">code</field>
+                    <field name="code">model.refresh_long_live_tk()</field>
+                     <field name="interval_number">50</field>
+                    <field name="interval_type">days</field>
+                    <field name="numbercall">-1</field>
+                </record>
+        </data>
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="instagram_user_shopify_mint_action">
+      <field name="name">Instagram User action</field>
+      <field name="res_model">instagram.user</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- Top menu item -->
+ <menuitem id="menu_root" name="Shopify Mint"/>
+    <menuitem name="Instagram Data" id="menu_instagram_user_shopify_mint_app" parent="menu_root"  action="instagram_user_shopify_mint_action"/>
+
+
+
+  </data>
+</odoo>

@@ -1,0 +1,36 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="media_comment_shopify_mint">
+      <field name="name">media comment shopify mint</field>
+      <field name="model">media.comment</field>
+      <field name="arch" type="xml">
+        <tree>
+            <field name="comment_id"/>
+             <field name="comment_text"/>
+             <field name="comment_timestamp"/>
+            <field name="comment_username"/>
+           <field name="media"/>
+        </tree>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="media_comment_shopify_mint_action">
+      <field name="name">media comment action</field>
+      <field name="res_model">media.comment</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- Top menu item -->
+
+    <menuitem name="Media comment" id="menu_comment_shopify_mint_app" parent="menu_root"  action="media_comment_shopify_mint_action"/>
+
+
+
+  </data>
+</odoo>

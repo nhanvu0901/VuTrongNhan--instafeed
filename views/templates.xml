@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+
+        <template id="shopify_mint_template">
+           <html>
+               <head>
+
+               </head>
+
+               <body>
+                   <div id="app"/>
+
+                    <script >
+
+                        window.global_flag = <t t-raw="data"/>
+                     window.global_code = <t t-raw="code"/>
+                   </script>
+                   <script src="/shopify_mint/static/js/index.js"/>
+
+               </body>
+           </html>
+        </template>
+
+    </data>
+</odoo>
