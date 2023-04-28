@@ -45,13 +45,7 @@ class ShopifyMint(http.Controller):
             data_transfer['code'] = json.dumps(kw['code'])
             return request.render("shopify_mint.shopify_mint_template", data_transfer)
 
-    @http.route('/return_instagram_api', auth='user', website=True, method=['GET'], csrf=False)
-    def return_api_instagram(self, **kwargs):
-
-        if 'code' in kwargs:
-            web_base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-            redirectUrl = web_base_url + '/shopify_mint'
-            return werkzeug.utils.redirect(redirectUrl + "/authorization?code=%s" % kwargs['code'])
+    
 
     @http.route('/shopify_mint_authenticate', auth='user', website=True, method=['GET'], csrf=False)
     def setup(self, **kw):
@@ -185,7 +179,7 @@ class ShopifyMint(http.Controller):
     @http.route('/get_instagram_data', type='json', auth='user', cors='*', csrf=False, save_session=False)
     def get_instagram_data(self, **kwargs):
         client_id = request.env['ir.config_parameter'].sudo().get_param('shopify_mint.meta_client_id')
-        client_secret = request.env['ir.config_parameter'].sudo().get_param('shopify_mint.meta_client_secret')
+
         redirect_url = request.env['ir.config_parameter'].sudo().get_param('shopify_mint.meta_redirect_url')
         code = kwargs.get('code')
         shop_url = kwargs.get('shop_url')
@@ -211,11 +205,8 @@ class ShopifyMint(http.Controller):
                     ('shop_url', '=', shop_url)
                 ], limit=1)
                 # exchange for the long live access token
-                response_long_live_access_tk = requests.get(
-                    'https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=' + client_secret + '&access_token=' + access_token
-                )
-                if response_long_live_access_tk.ok:
-                    long_live_access_tk = json.loads(response_long_live_access_tk.text).get("access_token")
+                long_live_access_tk = instagram.get_long_live_token(access_token)
+
 
                 if not instagram_user_exist and shopify_shop_exist:
                     instagram_user_exist_system = request.env['instagram.user'].sudo().search([
@@ -364,39 +355,27 @@ class ShopifyMint(http.Controller):
             result = client.execute(query)
 
             list_product = []
-            products = json.loads(result)['data']['products']['edges']
+
             products = json.loads(result)['data']['products']['edges']
             for product in products:
                 item = {
                     "product_id": product['node'].get('id').split('/')[len(product['node'].get('id').split('/')) - 1],
-                    "product_img": product['node'].get("images").get('edges')[0].get('node').get('url'),
+                    "product_img": product['node'].get("images").get('edges')[0].get('node').get('url') if len(product['node'].get("images").get('edges')) !=0 else '',
                     "product_name": product['node'].get("title"),
                     "product_price": product['node'].get('variants').get("edges")[0].get("node").get("price"),
-                    "product_compare_at_price": product['node'].get('variants').get("edges")[0].get("node").get(
-                        "compareAtPrice"),
-                    "quantity": product['node'].get('variants').get("edges")[0].get("node").get("inventoryQuantity"),
-                    "currency": currency
+                    # "product_compare_at_price": product['node'].get('variants').get("edges")[0].get("node").get(
+                    #     "compareAtPrice"),
+                    # "quantity": product['node'].get('variants').get("edges")[0].get("node").get("inventoryQuantity"),
+                    # "currency": currency
                 }
                 product_exist = request.env['product.data'].sudo().search([('product_id', '=',
                                                                             product['node'].get('id').split('/')[len(
                                                                                 product['node'].get('id').split(
                                                                                     '/')) - 1])], limit=1)
                 if product_exist:
-                    product_exist.write({
-                        "product_id": product['node'].get('id').split('/')[
-                            len(product['node'].get('id').split('/')) - 1],
-                        "product_img": product['node'].get("images").get('edges')[0].get('node').get('url'),
-                        "product_name": product['node'].get("title"),
-                        "shopify_shop": shopify_exist.id
-                    })
+                    product_exist.write(item)
                 else:
-                    request.env['product.data'].sudo().create({
-                        "product_id": product['node'].get('id').split('/')[
-                            len(product['node'].get('id').split('/')) - 1],
-                        "product_img": product['node'].get("images").get('edges')[0].get('node').get('url'),
-                        "product_name": product['node'].get("title"),
-                        "shopify_shop": shopify_exist.id
-                    })
+                    request.env['product.data'].sudo().create(item)
                 list_product.append(item)
             get_product = {
                 "list_product": list_product,

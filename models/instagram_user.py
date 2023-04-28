@@ -77,10 +77,9 @@ class Instagram_User(models.Model):
             print(err)
 
     def update_like_follow(self):
+        instagram = InstagramAPI(request)
+        response_instagram_data = instagram.get_like_comment(self.user_id,self.facebook_access_token)
 
-        response_instagram_data = requests.get(
-            'https://graph.facebook.com/v16.0/' + self.user_id + '?fields=followers_count,media{like_count,comments_count,comments{text,username,timestamp}}&access_token=' +
-            self.facebook_access_token)
         if response_instagram_data.ok:
             self.write({
                 "followers": json.loads(response_instagram_data.text).get('followers_count')
@@ -89,13 +88,13 @@ class Instagram_User(models.Model):
                 media_exist = request.env['media.data'].sudo().search(
                     [('media_id', '=', data.get('id'))], limit=1)
                 if data.get('comments'):
-                    # TODO unlink the all old comment
+                    # unlink the all old comment
                     request.env['media.comment'].sudo().search(
                         [
                             ('media.id', '=', media_exist.id)
                         ],
-                    ).unlink()  # unlink the deleted widget
-                    # TODO get the new comment
+                    ).unlink()
+
                     for comment in data.get('comments').get('data'):
                         comment_created = request.env['media.comment'].sudo().create({
                             "comment_id": comment['id'],
@@ -132,6 +131,7 @@ class Instagram_User(models.Model):
             self.update_like_follow()
 
     def save_media(self, media_exist, response_url):
+        instagram = InstagramAPI(request)
         if media_exist:
             media_exist.write({
                 "media_id": json.loads(response_url.text).get('id'),
@@ -143,16 +143,12 @@ class Instagram_User(models.Model):
                 "media_like": ''
             })
             if json.loads(response_url.text).get('media_type') == 'CAROUSEL_ALBUM':
-                child_url = []
-                child_thumbnail_url = []
+
                 # call the children
-                response_children = requests.get(
-                    'https://graph.instagram.com/' + json.loads(response_url.text).get(
-                        'id') + '/children?fields=id,media_type,media_url,permalink,thumbnail_url&access_token=' + self.ins_access_token)
-                for item in json.loads(response_children.text).get('data'):
-                    child_url.append(item.get('media_url'))
-                    if item.get('thumbnail_url'):
-                        child_thumbnail_url.append(item.get('thumbnail_url'))
+                data_child_image = instagram.get_child_media_details(json.loads(response_url.text).get(
+                        'id'),self.ins_access_token)
+                child_url = data_child_image.get('child_url')
+                child_thumbnail_url =data_child_image.get('child_thumbnail_url')
 
                 media_exist.write({
                     "media_url": child_url,
@@ -175,16 +171,10 @@ class Instagram_User(models.Model):
                 "media_like": ''
             })
             if json.loads(response_url.text).get('media_type') == 'CAROUSEL_ALBUM':
-                child_url = []
-                child_thumbnail_url = []
-                # call the children
-                response_children = requests.get(
-                    'https://graph.instagram.com/' + json.loads(response_url.text).get(
-                        'id') + '/children?fields=id,media_type,media_url,permalink,thumbnail_url&access_token=' + self.ins_access_token)
-                for item in json.loads(response_children.text).get('data'):
-                    child_url.append(item.get('media_url'))
-                    if item.get('thumbnail_url'):
-                        child_thumbnail_url.append(item.get('thumbnail_url'))
+                data_child_image = instagram.get_child_media_details(json.loads(response_url.text).get(
+                    'id'), self.ins_access_token)
+                child_url = data_child_image.get('child_url')
+                child_thumbnail_url = data_child_image.get('child_thumbnail_url')
 
                 media_exist.write({
                     "media_url": child_url,
@@ -198,9 +188,9 @@ class Instagram_User(models.Model):
                 })
 
     def refresh_long_live_tk(self):
+        instagram = InstagramAPI(request)
         for instagram_user in self.env['instagram.user'].sudo().search([]):
-            response_refresh_tk = requests.get(
-                'https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=' + instagram_user.ins_access_token)
+            response_refresh_tk = instagram.refresh_token(instagram_user.ins_access_token)
             if response_refresh_tk.ok:
                 print(json.loads(response_refresh_tk.text))
                 instagram_user.write({
