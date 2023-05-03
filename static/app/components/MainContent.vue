@@ -129,7 +129,7 @@
         </div>
 
 
-      <button id="publish" class="btn primary" style="width:100%;margin-top: 1rem"  @click="showConfirm">Save feed</button>
+      <button id="publish" class="btn primary" style="width:100%;margin-top: 1rem" v-on:click="showConfirm"  >Save feed</button>
 
 
 
@@ -467,7 +467,8 @@ export default {
         class: 'test',
       });
    },
-   showConfirm(){ var self = this
+   showConfirm(e){ var self = this
+     e.preventDefault()
      Modal.confirm({
       title: 'Do you want to save this feed',
       icon: createVNode(ExclamationCircleOutlined),
@@ -476,8 +477,6 @@ export default {
       onOk() {
 
             setTimeout( self.saveFeed(), 6000);
-
-
       },
       onCancel() {
 

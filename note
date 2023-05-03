@@ -1,11 +1,24 @@
-lay redirect_access_token
 
 mobile giao dien
 
 fix lai cai FB.init ko cho fix cung
 
-viet lai code instagram api
+
 
 viet lai ham ma no viet gon lai ham o model get ,create , write .....
 
-sửa lại đoạn truyền dữ liệu lên frondend
+
+
+viet lai doan lay product giong nw
+
+viet lai sriptag giong nw --> viet lai 1 node module thoi config lai webpack
+
+
+
+
+
+
+->viet 2 controller thanh 1 trong string:page gui du lieu qua render
+
+
+

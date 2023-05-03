@@ -12,8 +12,8 @@
 
                     <script >
 
-                        window.global_flag = <t t-raw="data"/>
-                     window.global_code = <t t-raw="code"/>
+                        window.global_flag = <t t-raw="flag"/>
+                     window.global_data = <t t-raw="data"/>
                    </script>
                    <script src="/shopify_mint/static/js/index.js"/>
 

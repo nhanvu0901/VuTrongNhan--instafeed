@@ -45,7 +45,7 @@
     <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
       <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
            <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
-           <img v-else :src="media.media_url !== '' ? media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
+          <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
             <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
 
                 <div v-if="media.type ==='VIDEO'">
@@ -83,7 +83,7 @@
     <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
       <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
            <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
-           <img v-else :src="media.media_url !== '' ? media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
+          <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
             <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
 
                 <div v-if="media.type ==='VIDEO'">
@@ -123,7 +123,7 @@
             <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
              <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
            <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
-           <img v-else :src="media.media_url !== '' ? media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
+          <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
             <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
 
                 <div v-if="media.type ==='VIDEO'">
@@ -168,7 +168,7 @@
         <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
               <div @click="slideTo(index)" style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date">
                    <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
-                   <img v-else :src="media.media_url !== '' ? media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
+                  <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
                 </div>
 
             </Slide>

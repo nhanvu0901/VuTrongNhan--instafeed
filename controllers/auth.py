@@ -26,7 +26,7 @@ class Auth(http.Controller):
         if 'code' in kwargs:
             web_base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
             redirectUrl = web_base_url + '/shopify_mint'
-            return werkzeug.utils.redirect(redirectUrl + "/authorization?code=%s" % kwargs['code'])
+            return werkzeug.utils.redirect(redirectUrl + "/main?code=%s" % kwargs['code'])
 
     @http.route('/shopify_mint_authenticate', auth='user', website=True, method=['GET'], csrf=False)
     def setup(self, **kw):

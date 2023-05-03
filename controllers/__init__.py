@@ -6,3 +6,4 @@ from . import facebook_data
 from . import webhook_controller
 from . import newfeed
 from . import auth
+from . import main

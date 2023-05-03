@@ -295,94 +295,19 @@ export default {
     mounted() {
        this.is_loading = true
       if(window.global_flag === true){
-              let queryString = window.location.search
-             let urlParams = new URLSearchParams(queryString)
-             this.shopify_url = urlParams.get('shop_url')
-             //viet ham check xem co ton tai database dua tren ten shop
-            // ham goi den trang van co shop_url de ma neu no co
-            // ko can nhieu param nua
-            if(urlParams.get('shop_url')){
 
-               axios.post('/check_instagram_user_data_exist', {
-                jsonrpc: "2.0",
-                params: {
-                     shopify_url:urlParams.get('shop_url')
-                }
-            }).then((res) => {
+           console.log(window.global_data)
+           let result = window.global_data
+           this.shopify_url =  result.shopify_url
+           this.instagram_data = result.instagram_data
+           this.client_id = result.client_id
+           this.redirect_url = result.redirect_url
+           this.instagram_user_name = this.instagram_data.user_name
+           console.log(this.instagram_data)
+           var state = {authorize_url:'https://odoo.website/shopify_mint/main?shop_url='+this.shopify_url};
 
-                 if (res.status === 200) {
-
-                     if(JSON.parse(res.data.result) !== ''){
-                         let result = JSON.parse(res.data.result)
-                         this.instagram_data = result.instagram_data
-                         this.client_id = result.client_id
-                         this.redirect_url = result.redirect_url
-                         this.instagram_user_name = this.instagram_data.user_name
-                         console.log(this.instagram_data)
-                         var state = {authorize_url:'https://odoo.website/shopify_mint/main?shop_url='+this.shopify_url};
-
-                         history.pushState(state, '', 'https://odoo.website/shopify_mint/main?shop_url='+this.shopify_url);
-
-                     }
-                 this.is_loading = false
-                 }
-
-            })
-           }
-
-
-            if(window.global_code !== '' && window.global_code !== undefined) {
-
-                this.code = window.global_code
-                var shop_url_storage = localStorage.getItem("shop_url_instagram_shopify");
-                this.shopify_url = shop_url_storage
-
-
-                axios.post('/get_instagram_data', {
-                    jsonrpc: "2.0",
-                    params: {
-                        shop_url: shop_url_storage,
-                        code: this.code
-                    }
-                }).then((res) => {
-
-                    if (res.status === 200) {
-
-                        if (JSON.parse(res.data.result) !== '' || JSON.parse(res.data.result) !== undefined) {
-
-                            if (JSON.parse(res.data.result) === 'Instagram user already been used') {
-                                this.setError('Instagram user already been used', localStorage.getItem("shop_url_instagram_shopify"))
-                            } else if (JSON.parse(res.data.result) === 'Shop not exist') {
-                                this.setError('Shop not exist', localStorage.getItem("shop_url_instagram_shopify"))
-                            } else {
-
-                                var state = {authorize_url: 'https://odoo.website/shopify_mint/main?shop_url=' + localStorage.getItem("shop_url_instagram_shopify")};
-                                history.pushState(state, '', 'https://odoo.website/shopify_mint/main?shop_url=' + localStorage.getItem("shop_url_instagram_shopify"));
-                                let result = JSON.parse(res.data.result)
-                                this.instagram_data = result.instagram_data
-                                this.client_id = result.client_id
-                                this.redirect_url = result.redirect_url
-                                this.redirect_url = result.redirect_url
-                                this.instagram_user_name = this.instagram_data.user_name
-
-                                localStorage.removeItem("shop_url_instagram_shopify");
-                                this.is_loading = false
-                            }
-
-                        } else {
-                            this.setError('Code is not verify')
-                        }
-
-
-                    }
-
-                })
-
-
-            }
-
-
-
+           history.pushState(state, '', 'https://odoo.website/shopify_mint/main?shop_url='+this.shopify_url);
+           this.is_loading = false
       }
       else{
         this.setError("Not user")
