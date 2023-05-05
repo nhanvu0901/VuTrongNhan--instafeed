@@ -7,8 +7,17 @@
 
     <div class="column six" style="text-align:right;">
       <select id="feeds" v-model="selected" @change="onChange()">
-        <option v-for="(item,index) in this.list_widget" :value="item">WIDGET #{{item.number}}</option>
+        <option v-for="(item,index) in this.list_widget" :value="item">
+            <div>{{item.hashed_id}}</div>
+
+        </option>
+
       </select>
+      <div class="" style="gap: 4px"
+                 @click='copyText(selected.hashed_id)'>
+                <img src="/shopify_mint/static/icon/copy-blue.svg">
+                <span style="color: #1890FF;cursor: pointer;">Copy code</span>
+      </div>
     </div>
   </div>
 </template>
@@ -35,7 +44,7 @@ instagram_data:''
     },
     watch: {
       instagram_data(newone){
-           if(newone.id_widget !== false || newone.number !== false){
+           if(newone.hashed_id !== false || newone.number !== false){
                this.selected = newone.choose_widget
            }
       },
@@ -45,6 +54,16 @@ instagram_data:''
       this.selected = this.instagram_data.choose_widget
     },
     methods:{
+     copyText: function (text) {
+          navigator.clipboard.writeText(text);
+          notification.open({
+              message: 'Notification !!',
+              description:
+                'Copied to clipboard',
+              duration: 4,
+             icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+            });
+      },
       onChange(){
        this.$emit('setWaiting',true)
        let queryString = window.location.search
@@ -53,7 +72,7 @@ instagram_data:''
                   jsonrpc: "2.0",
                   params: {
                        shopify_url:urlParams.get('shop_url'),
-                      id_widget:this.selected.id_widget,//TODO gui id cua thang dang hoat dong
+                      hashed_id:this.selected.hashed_id,//TODO gui id cua thang dang hoat dong
                       user_id:this.user_id
                   }
               }).then((res) => {
@@ -94,7 +113,7 @@ instagram_data:''
                       jsonrpc: "2.0",
                       params: {
                            shopify_url:urlParams.get('shop_url'),
-                          id_widget:this.instagram_data.choose_widget.id_widget,//TODO gui id cua thang dang hoat dong
+                          hashed_id:this.instagram_data.choose_widget.hashed_id,//TODO gui id cua thang dang hoat dong
                           user_id:this.user_id
                       }
                   }).then((res) => {

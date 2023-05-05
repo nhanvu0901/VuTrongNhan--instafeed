@@ -131,13 +131,13 @@ class Auth(http.Controller):
 
                 })
             web_base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
-            web_base = web_base_url.replace("http", "https")
+
 
             scripTag = shopify.ScriptTag.find()
             if not scripTag:
                 shopify.ScriptTag.create({
                     "event": "onload",
-                    "src": web_base + "/shopify_mint/static/script_tag/static/js/" + "index.js" + "?v=" + str(
+                    "src": web_base_url + "/shopify_mint/static/script_tag/static/js/" + "index.js" + "?v=" + str(
                         time.time())
                 })
             else:
@@ -147,11 +147,11 @@ class Auth(http.Controller):
 
                 shopify.ScriptTag.create({
                     "event": "onload",
-                    "src": web_base + "/shopify_mint/static/script_tag/js/" + "index.js" + "?v=" + str(time.time())
+                    "src": web_base_url + "/shopify_mint/static/script_tag/js/" + "index.js" + "?v=" + str(time.time())
                 })
 
             redirectUrl = web_base_url + '/shopify_mint'
-            return werkzeug.utils.redirect(redirectUrl + "/authorization?shop_url=%s" % (shop.domain))
+            return werkzeug.utils.redirect(redirectUrl + "/main")
 
         except Exception as e:
             _logger.error(traceback.format_exc())

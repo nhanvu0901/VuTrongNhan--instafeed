@@ -22,7 +22,7 @@ from ..static.instagram_auth.InstagramAPI import InstagramAPI
 class Instagram_User(models.Model):
     _name = 'instagram.user'
     _description = 'Instagram User'
-
+    #TODO bo thang shopify_shop di
     shopify_shop = fields.Many2one('shopify.mint', 'Shopify Shop', ondelete='cascade')
 
     ins_access_token = fields.Char()
@@ -31,22 +31,27 @@ class Instagram_User(models.Model):
     user_id = fields.Char(string="User ID")
     user_name = fields.Char(string="User name")
     media_url = fields.Char(string="Media URl")
-    code = fields.Char(string="Code")
-    media = fields.One2many('media.data', 'instagram_user')
-    widget_data = fields.One2many('widget.data', 'instagram_user')
+
+
     followers = fields.Char('Followers', default='')
     facebook_access_token = fields.Char()
+
+    admin = fields.Many2one('res.users')
+    platform = fields.Char()
+    status = fields.Boolean(default=True)
+    time_update_post = fields.Char()
+    log_error = fields.Char()
 
     def get_instagram_data_model(self, shop_url):
         try:
             if self.shopify_shop.shop_url == shop_url:
-                list_media = request.env['media.data'].get_list_media(self)
+                list_media = request.env['media.data'].get_list_media()
 
-                widget_exist = self.env['widget.data'].get_active_widget(self, self.shopify_shop)
+                widget_exist = self.env['widget.data'].get_active_widget()
 
-                list_widget = self.env['widget.data'].get_list_widget(self, self.shopify_shop)
+                list_widget = self.env['widget.data'].get_list_widget()
                 choose_widget = {
-                    "id_widget": widget_exist.id_widget,
+                    "hashed_id": widget_exist.hashed_id,
                     "number": widget_exist.id
                 }
                 data = {
@@ -59,17 +64,17 @@ class Instagram_User(models.Model):
 
                     "is_display": widget_exist.is_display,
 
-                    "title": widget_exist.feed_title,
-                    "spacing": widget_exist.spacing,
-                    "onclickPost": widget_exist.on_post_click,
-                    "layout": widget_exist.layout,
-                    "autoLayout": widget_exist.configuration,
-                    "rows": widget_exist.rows,
-                    "columns": widget_exist.columns,
-                    "showLikes": widget_exist.showLikes,
-                    "showFollwers": widget_exist.showFollwers,
-                    "postToShow": widget_exist.postToShow,
-                    "displayTagPost": widget_exist.displayTagPost,
+                    "title": widget_exist.widget_config.feed_title,
+                    "spacing": widget_exist.widget_config.spacing,
+                    "onclickPost": widget_exist.widget_config.on_post_click,
+                    "layout": widget_exist.widget_config.layout,
+                    "autoLayout": widget_exist.widget_config.configuration,
+                    "rows": widget_exist.widget_config.rows,
+                    "columns": widget_exist.widget_config.columns,
+                    "showLikes": widget_exist.widget_config.showLikes,
+                    "showFollwers": widget_exist.widget_config.showFollwers,
+                    "postToShow": widget_exist.widget_config.postToShow,
+                    "displayTagPost": widget_exist.widget_config.displayTagPost,
                     "list_widget": list_widget
                 }
                 return data
@@ -112,7 +117,7 @@ class Instagram_User(models.Model):
 
     def update_instagram_media(self):
         if self:
-            instagram = InstagramAPI(request)
+            instagram = InstagramAPI(self)
             response_media = instagram.get_instagram_media(self.ins_access_token)
             try:
                 if response_media.ok:
@@ -131,6 +136,7 @@ class Instagram_User(models.Model):
             self.update_like_follow()
 
     def save_media(self, media_exist, response_url):
+        current_user = request.env.user.id
         instagram = InstagramAPI(request)
         if media_exist:
             media_exist.write({
@@ -138,7 +144,7 @@ class Instagram_User(models.Model):
                 "type": json.loads(response_url.text).get('media_type'),
                 "caption": json.loads(response_url.text).get('caption'),
                 "permalink": json.loads(response_url.text).get('permalink'),
-                "instagram_user": self.id,
+                "admin": current_user,
                 "created_date": json.loads(response_url.text).get('timestamp'),
                 "media_like": ''
             })
@@ -166,9 +172,10 @@ class Instagram_User(models.Model):
                 "type": json.loads(response_url.text).get('media_type'),
                 "caption": json.loads(response_url.text).get('caption'),
                 "permalink": json.loads(response_url.text).get('permalink'),
-                "instagram_user": self.id,
+                "admin": current_user,
                 "created_date": json.loads(response_url.text).get('timestamp'),
-                "media_like": ''
+                "media_like": '',
+
             })
             if json.loads(response_url.text).get('media_type') == 'CAROUSEL_ALBUM':
                 data_child_image = instagram.get_child_media_details(json.loads(response_url.text).get(

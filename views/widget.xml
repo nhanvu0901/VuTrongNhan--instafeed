@@ -7,27 +7,20 @@
       <field name="model">widget.data</field>
       <field name="arch" type="xml">
         <tree>
-           <field name="feed_title"/>
-            <field name="spacing"/>
-            <field name="on_post_click"/>
-            <field name="layout"/>
-            <field name="configuration"/>
-            <field name="rows"/>
-            <field name="columns"/>
+           <field name="admin"/>
+            <field name="widget_config"/>
+            <field name="hashed_id"/>
             <field name="media_data"/>
-            <field name="instagram_user"/>
-            <field name="shopify_shop"/>
-            <field name="showLikes"/>
-            <field name="showFollwers"/>
-            <field name="postToShow"/>
-            <field name="displayTagPost"/>
-
-             <field name="id_widget"/>
-            <field name="is_display"/>
-
-
+<!--            <field name="id_widget" />-->
+            <field name="is_display" />
         </tree>
       </field>
+    </record>
+
+   <record model="ir.actions.act_window" id="widget_config_action_window">
+        <field name="name">Widget Config</field>
+        <field name="res_model">widget.config</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
 
@@ -41,8 +34,9 @@
 
     <!-- Top menu item -->
 
-    <menuitem name="Widget Data" id="menu_widget_shopify_mint_app" parent="menu_root"  action="widget_user_shopify_mint_action"/>
-
+    <menuitem name="Widget" id="menu_widget_shopify_mint_app" parent="menu_root"  />
+      <menuitem name="Widget Data" id="menu_widget_data_shopify_mint_app" parent="menu_widget_shopify_mint_app"  action="widget_user_shopify_mint_action"/>
+        <menuitem name="Widget Config Data" id="menu_widget_config_shopify_mint_app" parent="menu_widget_shopify_mint_app"  action="widget_config_action_window"/>
 
 
   </data>

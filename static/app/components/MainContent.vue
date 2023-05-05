@@ -369,7 +369,7 @@ export default {
                   jsonrpc: "2.0",
                   params: {
                        shopify_url:urlParams.get('shop_url'),
-                      id_widget:this.instagram_data.choose_widget.id_widget,//TODO gui id cua thang dang hoat dong
+                      hashed_id:this.instagram_data.choose_widget.hashed_id,//TODO gui id cua thang dang hoat dong
                       user_id:this.instagram_data.user_id
 
 
@@ -426,7 +426,7 @@ export default {
             showFollwers:this.showFollowers,
             postToShow:this.postToShow,
             displayTagPost: this.displayTagPost,
-            id_widget:this.choose_widget.id_widget
+            hashed_id:this.choose_widget.hashed_id
       }
       xmlhttp.onreadystatechange = function () {
           if (xmlhttp.readyState === 4) {

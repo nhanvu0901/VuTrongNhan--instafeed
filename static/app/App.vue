@@ -302,12 +302,16 @@ export default {
            this.instagram_data = result.instagram_data
            this.client_id = result.client_id
            this.redirect_url = result.redirect_url
-           this.instagram_user_name = this.instagram_data.user_name
-           console.log(this.instagram_data)
+           if(this.instagram_data !== '' && this.instagram_data !== null){
+              this.instagram_user_name = this.instagram_data.user_name
+           }
+
+           this.is_loading = false
+
            var state = {authorize_url:'https://odoo.website/shopify_mint/main?shop_url='+this.shopify_url};
 
            history.pushState(state, '', 'https://odoo.website/shopify_mint/main?shop_url='+this.shopify_url);
-           this.is_loading = false
+
       }
       else{
         this.setError("Not user")

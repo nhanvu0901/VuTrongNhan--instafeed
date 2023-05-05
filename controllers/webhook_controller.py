@@ -7,6 +7,7 @@ class WebhookController(http.Controller):
     def webhook_order_create(self, topic, shopify_id):
         try:
             if 'app' in topic:
+                current_user = request.env.user.id
                 print(request.jsonrequest)
                 shopify_shop = request.env['shopify.mint'].sudo().search([
                     ('shop_id', '=', request.jsonrequest.get('id'))
@@ -18,11 +19,12 @@ class WebhookController(http.Controller):
                             shopify_shop.write({
                                 "is_delete":True
                             })
-                        if shopify_shop.instagram_data != '':
+
                             instagram_data = request.env['instagram.user'].sudo().search([
-                            ('user_id', '=', shopify_shop.instagram_data.user_id)
+                            ('admin', '=', current_user)
                         ], limit=1)
-                            instagram_data.unlink()
+                            if instagram_data != '':
+                                instagram_data.unlink()
 
 
                 except Exception as err:

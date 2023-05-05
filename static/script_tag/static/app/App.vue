@@ -21,7 +21,7 @@ export default {
     },
     data() {
           return {
-          widget_id: null,
+          hashed_id: null,
           instagram_data:'',
           shopify_url:'',
           client_id:'',
@@ -220,7 +220,7 @@ export default {
     },
   },
     mounted() {
-      this.widget_id = this.$.attrs.data.widget_id
+      this.hashed_id = this.$.attrs.data.hashed_id
 
 
 
@@ -234,7 +234,7 @@ export default {
     let param={
 
       shop_url:Shopify.shop,
-      widget_id:this.widget_id
+      hashed_id:this.hashed_id
     }
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4) {

@@ -14,10 +14,10 @@ for (let i = 0; i < widget_list.length; i++){
 }
     if (widget_list.length > 0) {
         for (let widget_element of widget_list) {
-            let widget_id = widget_element.getAttribute('data-widget-id')
+            let hashed_id = widget_element.getAttribute('data-widget-id')
             let app = createApp({
-                name: 'Widget_' + widget_id,
-                render: () => h(App, {data: {widget_id: widget_id}})
+                name: 'Widget_' + hashed_id,
+                render: () => h(App, {data: {widget_id: hashed_id}})
             })
             app.component("font-awesome-icon", FontAwesomeIcon).use(Antd).mount(widget_element)
         }

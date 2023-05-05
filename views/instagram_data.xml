@@ -14,9 +14,9 @@
             <field name="user_id"/>
             <field name="user_name"/>
             <field name="media_url"/>
-             <field name="code"/>
-            <field name="media"/>
-            <field name="widget_data"/>
+             <field name="admin"/>
+<!--            <field name="media"/>-->
+<!--            <field name="widget_data"/>-->
             <field name="followers"/>
             <field name="facebook_access_token"/>
         </tree>

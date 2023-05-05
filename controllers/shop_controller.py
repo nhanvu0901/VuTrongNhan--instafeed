@@ -52,19 +52,20 @@ class Frontend(http.Controller):
                     }
                     list_media.append(media_data)
                 widget_data = {
-                    "feed_title": widget_exist.feed_title,
-                    "spacing": widget_exist.spacing,
-                    "on_post_click": widget_exist.on_post_click,
-                    "layout": widget_exist.layout,
-                    "configuration": widget_exist.configuration,
-                    "rows": widget_exist.rows,
-                    "columns": widget_exist.columns,
+                    "feed_title": widget_exist.widget_config.feed_title,
+                    "spacing": widget_exist.widget_config.spacing,
+                    "on_post_click": widget_exist.widget_config.on_post_click,
+                    "layout": widget_exist.widget_config.layout,
+                    "configuration": widget_exist.widget_config.configuration,
+                    "rows": widget_exist.widget_config.rows,
+                    "columns": widget_exist.widget_config.columns,
                     "instagram_user": widget_exist.instagram_user.user_name,
                     "media_url": list_media,
-                    "showLikes": widget_exist.showLikes,
-                    "showFollowers": widget_exist.showFollwers,
+                    "showLikes": widget_exist.widget_config.showLikes,
+                    "showFollowers": widget_exist.widget_config.showFollwers,
                     "followers":widget_exist.instagram_user.followers,
-                    "postToShow": widget_exist.postToShow,
-                    "displayTagPost": widget_exist.displayTagPost,
+                    "postToShow": widget_exist.widget_config.postToShow,
+                    "displayTagPost": widget_exist.widget_config.displayTagPost,
                 }
+
                 return json.dumps(widget_data)

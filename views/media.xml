@@ -8,7 +8,7 @@
       <field name="arch" type="xml">
         <tree>
             <field name="media_id"/>
-             <field name="instagram_user"/>
+             <field name="admin"/>
 
              <field name="media_url"/>
 

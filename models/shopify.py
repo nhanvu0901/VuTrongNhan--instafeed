@@ -22,11 +22,14 @@ class SApp(models.Model):
     shop_name = fields.Char(string="Shop name")
     shop_id = fields.Char(string="Shop ID")
     user = fields.Many2one('res.users', "User")
-    widget = fields.One2many('widget.data','shopify_shop')
+    # widget = fields.One2many('widget.data','shopify_shop')
     script_tag = fields.Char(string='Script Tag')
     is_update_script_tag = fields.Boolean(default=True)
-    instagram_data = fields.Many2one('instagram.user',string='Instagram Data')
+    # instagram_data = fields.Many2one('instagram.user',string='Instagram Data')
     is_delete = fields.Boolean(default=False)
+
+    country = fields.Char()
+    phone = fields.Char()
 
 
     @api.model

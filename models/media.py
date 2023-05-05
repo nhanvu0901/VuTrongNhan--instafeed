@@ -10,7 +10,7 @@ class Media(models.Model):
     _description = 'Instagram Media'
 
     media_id = fields.Char(string="ID")
-    instagram_user = fields.Many2one('instagram.user', "User", ondelete='cascade')
+
     media_url = fields.Char(string="media url")
     type = fields.Char(string="media type")
     caption = fields.Char(string="caption")
@@ -22,6 +22,11 @@ class Media(models.Model):
     media_like = fields.Char('Likes')
     count_comment = fields.Char('')
     comment = fields.One2many("media.comment","media",string="Comment")
+
+    admin = fields.Many2one('res.users')
+
+
+    instagram_user = fields.Many2one('instagram.user', "User", ondelete='cascade')
 
     def get_list_comment(self):
         list_comment=[]
@@ -35,8 +40,9 @@ class Media(models.Model):
         return list_product
 
 
-    def get_list_media_id(self, instagram_user):
-        media_data = self.env['media.data'].sudo().search([('instagram_user.id', '=', instagram_user.id)])
+    def get_list_media_id(self):
+        current_user = request.env.user.id
+        media_data = self.env['media.data'].sudo().search([('admin', '=', current_user)])
         try:
             if media_data:
                 list_widget = []
@@ -51,9 +57,9 @@ class Media(models.Model):
             print(err)
             traceback.print_exc()
 
-    def get_list_media(self, instagram_user):
-        media = self.env['media.data'].sudo().search(
-            [('instagram_user.id', '=', instagram_user.id)])
+    def get_list_media(self):
+        current_user = request.env.user.id
+        media = self.env['media.data'].sudo().search([('admin', '=', current_user)])
         if media:
             list_media = []
             for media_url in media:

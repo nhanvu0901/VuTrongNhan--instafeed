@@ -17,8 +17,7 @@ class Facebook_data(http.Controller):
     @http.route('/get_facebook_data', type='json', auth='none', cors='*', csrf=False, save_session=False)
     def get_data_to_store(self, **kwargs):
         print(request.jsonrequest)
-        shopify_shop_exist = request.env['shopify.mint'].sudo().search(
-            [('shop_url', '=', request.jsonrequest.get('shop_url'))])
+
         instagram_user_exist = request.env['instagram.user'].sudo().search([
             ('user_name', '=', request.jsonrequest.get('instagram_user_name'))
         ], limit=1)

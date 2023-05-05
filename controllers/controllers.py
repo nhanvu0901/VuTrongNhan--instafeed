@@ -87,7 +87,7 @@ class ShopifyMint(http.Controller):
                     "product_id": product['node'].get('id').split('/')[len(product['node'].get('id').split('/')) - 1],
                     "product_img": product['node'].get("images").get('edges')[0].get('node').get('url') if len(product['node'].get("images").get('edges')) !=0 else '',
                     "product_name": product['node'].get("title"),
-                    "product_price": product['node'].get('variants').get("edges")[0].get("node").get("price"),
+                    # "product_price": product['node'].get('variants').get("edges")[0].get("node").get("price"),
                     # "product_compare_at_price": product['node'].get('variants').get("edges")[0].get("node").get(
                     #     "compareAtPrice"),
                     # "quantity": product['node'].get('variants').get("edges")[0].get("node").get("inventoryQuantity"),
@@ -177,10 +177,11 @@ class ShopifyMint(http.Controller):
     def update_instagram_post(self, **kwargs):
         try:
             if (kwargs):
+                current_user = request.env.user.id
                 shop_url = kwargs.get('shopify_url')
                 instagram_user_name = kwargs.get('instagram_user_name')
                 instagram_user_exist = request.env['instagram.user'].sudo().search(
-                    ['&', ('shopify_shop.shop_url', '=', shop_url), ('user_name', '=', instagram_user_name)], limit=1)
+                    ['&', ('admin', '=', current_user), ('user_name', '=', instagram_user_name)], limit=1)
                 instagram_user_exist.update_instagram_media()
 
                 data = instagram_user_exist.get_instagram_data_model(shop_url)

@@ -38,7 +38,7 @@ class MainController(http.Controller):
             if "code" in kw:
                 self.update_instagram_user(kw["code"], shop_url)
             instagram_user_exist = request.env['instagram.user'].sudo().search([
-                ('shopify_shop.shop_url', '=', shop_url)
+                ('admin', '=', current_user.id)
             ], limit=1)
             data = self.get_instagram_user_data(instagram_user_exist, client_id, shop_url, redirect_url)
             data_transfer['data'] = json.dumps(data)
@@ -51,7 +51,7 @@ class MainController(http.Controller):
 
         instagram = InstagramAPI(request)
         response = instagram.get_access_token(code)
-
+        current_user = request.env.user.id
         if response.ok:
             data = response.json()
 
@@ -74,30 +74,34 @@ class MainController(http.Controller):
                 # check thang moi dang nhap ins
                 if not instagram_user_exist and shopify_shop_exist:
                     instagram_user_exist_system = request.env['instagram.user'].sudo().search([
-                        ('shopify_shop.id', '=', shopify_shop_exist.id)
+                        ('admin', '=', current_user)
                     ], limit=1)
 
                     instagram_user_exist = request.env['instagram.user'].create({
-                        "shopify_shop": shopify_shop_exist.id,
+
                         "ins_access_token": long_live_access_tk,
                         "user_id": user_id,
                         "user_name": data_username,
-                        "code": code
+                        "admin":current_user,
+                        "platform":"instagram"
+
+                        # "code": code
                     })
-                    shopify_shop_exist.write({
-                        "instagram_data": instagram_user_exist.id
-                    })
+                    # shopify_shop_exist.write({
+                    #     "instagram_data": instagram_user_exist.id
+                    # })
                     # Xoa thang hien tai neu co
 
                     if shopify_shop_exist and instagram_user_exist_system:
 
-                        shopify_shop_exist.write({
-                            "instagram_data": (3, instagram_user_exist_system.id)
-                        })
+                        # shopify_shop_exist.write({
+                        #     "instagram_data": (3, instagram_user_exist_system.id)
+                        # })
+                        #
+                        # shopify_shop_exist.write({
+                        #     "instagram_data": instagram_user_exist.id
+                        # })
 
-                        shopify_shop_exist.write({
-                            "instagram_data": instagram_user_exist.id
-                        })
                         for media in instagram_user_exist_system.media:
                             media.unlink()
                         for widget in instagram_user_exist_system.widget_data:
@@ -110,11 +114,11 @@ class MainController(http.Controller):
 
                     if instagram_user_exist.shopify_shop.shop_url == shop_url:  # if the instagram already use by 1 shop
                         instagram_user_exist.write({
-                            "shopify_shop": shopify_shop_exist.id,
+                            # "shopify_shop": shopify_shop_exist.id,
                             "ins_access_token": long_live_access_tk,
                             "user_id": user_id,
                             "user_name": data_username,
-                            "code": code
+
                         })
                     else:
                         return json.dumps("Instagram user already been used")
