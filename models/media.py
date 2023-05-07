@@ -9,45 +9,32 @@ class Media(models.Model):
     _name = 'media.data'
     _description = 'Instagram Media'
 
-    media_id = fields.Char(string="ID")
 
-    media_url = fields.Char(string="media url")
-    type = fields.Char(string="media type")
-    caption = fields.Char(string="caption")
-    permalink = fields.Char(string="permalink")
-    thumbnail_url = fields.Char(string="thumbnail url")
-    created_date = fields.Char(string="Created at")
-    selected_product = fields.Many2many('product.data', string="Selected Product")
-    widget_data = fields.Many2many('widget.data')
-    media_like = fields.Char('Likes')
-    count_comment = fields.Char('')
-    comment = fields.One2many("media.comment","media",string="Comment")
+    name =fields.Char()
+
 
     admin = fields.Many2one('res.users')
 
+    selected_posts_global = fields.Many2many('post.global')
 
-    instagram_user = fields.Many2one('instagram.user', "User", ondelete='cascade')
+    #TODO xoa instagram_user va widget_data
+    # widget_data = fields.Many2many('widget.data')
+    # instagram_user = fields.Many2one('instagram.user', "User", ondelete='cascade')
 
-    def get_list_comment(self):
-        list_comment=[]
-        for item in self.comment:
-            list_comment.append(item.get_comment())
-        return list_comment
-    def get_list_product(self):
-        list_product=[]
-        for item in self.selected_product:
-            list_product.append(item.get_product())
-        return list_product
+
+
 
 
     def get_list_media_id(self):
         current_user = request.env.user.id
-        media_data = self.env['media.data'].sudo().search([('admin', '=', current_user)])
+        widget_exist = request.env['widget.data'].sudo().search(
+            ['&', ('admin', '=', current_user),
+             ('is_display', '=', True)])
         try:
-            if media_data:
+            if widget_exist.media_data:
                 list_widget = []
                 list_widget_id = []
-                for item in media_data:
+                for item in widget_exist.media_data:
                     list_widget.append(item.id)
                 for i in list_widget:
                     product = (4, i)  # link to an existing record
@@ -59,20 +46,22 @@ class Media(models.Model):
 
     def get_list_media(self):
         current_user = request.env.user.id
-        media = self.env['media.data'].sudo().search([('admin', '=', current_user)])
-        if media:
+        widget_exist = request.env['widget.data'].sudo().search(
+            ['&', ('admin', '=', current_user),
+             ('is_display', '=', True)])
+        if widget_exist.media_data:
             list_media = []
-            for media_url in media:
-                list_comment =[]
+
+            for media_url in widget_exist.media_data.selected_posts_global:
+                list_comment = []
                 for comment in media_url.comment:
-                    comment_data={
+                    comment_data = {
                         "comment_id": comment.comment_id,
                         "comment_text": comment.comment_text,
                         "comment_timestamp": comment.comment_timestamp,
                         "comment_username": comment.comment_username,
                     }
                     list_comment.append(comment_data)
-
 
                 list_product = []
                 for product in media_url.selected_product:
@@ -94,8 +83,50 @@ class Media(models.Model):
                     "media_like": media_url.media_like,
                     "media_count": media_url.count_comment,
                     "num_of_tagged_product": len(media_url.selected_product),
-                    "list_comment":list_comment,
+                    "list_comment": list_comment,
 
                 }
                 list_media.append(media_data)
+
             return list_media
+
+    def get_post_product_tag(self):
+
+        product_list = []
+        if self.selected_posts_global:
+            for item in self.selected_posts_global.selected_product:
+                product = {
+                    "id": item.product_id,
+                    "image_src": item.product_img,
+                    "name": item.product_name
+                }
+                product_list.append(product)
+
+
+class NestWidgetPostGlobal(models.Model):
+    _name = 'post.global'
+    media_id = fields.Char(string="ID")
+    media_url = fields.Char(string="media url")
+    type = fields.Char(string="media type")
+    caption = fields.Char(string="caption")
+    permalink = fields.Char(string="permalink")
+    thumbnail_url = fields.Char(string="thumbnail url")
+    created_date = fields.Char(string="Created at")
+    selected_product = fields.Many2many('product.data', string="Selected Product")
+
+    media_like = fields.Char('Likes')
+    count_comment = fields.Char('')
+    comment = fields.One2many("media.comment", "media", string="Comment")
+    admin = fields.Many2one('res.users')
+
+    def get_list_product(self):
+        list_product=[]
+        for item in self.selected_product:
+            list_product.append(item.get_product())
+        return list_product
+
+    def get_list_comment(self):
+        list_comment = []
+        for item in self.comment:
+            list_comment.append(item.get_comment())
+        return list_comment

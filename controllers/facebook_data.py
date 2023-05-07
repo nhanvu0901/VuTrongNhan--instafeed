@@ -24,8 +24,9 @@ class Facebook_data(http.Controller):
         instagram = InstagramAPI(request)
 
         instagram_id = instagram.get_instagram_user_id(request.jsonrequest['accessToken'],instagram_user_exist)
-
-        if instagram_id:
+        if instagram_id.get('flag') == True:
+            return json.dumps(instagram_id)
+        else:
 
             if instagram_user_exist:
                 instagram_user_exist.write({
@@ -38,7 +39,7 @@ class Facebook_data(http.Controller):
                         "followers": json.loads(response_instagram_data.text).get('followers_count')
                     })
                     for data in json.loads(response_instagram_data.text).get('media').get('data'):
-                        media_exist = request.env['media.data'].sudo().search(
+                        media_exist = request.env['post.global'].sudo().search(
                             [('media_id', '=', data.get('id'))], limit=1)
 
                         if data.get('comments'):
@@ -64,8 +65,7 @@ class Facebook_data(http.Controller):
                                 "count_comment": data.get('comments_count')
                             })
 
-                    data = instagram_user_exist.get_instagram_data_model(
-                        instagram_user_exist.shopify_shop.shop_url)
+                    data = instagram_user_exist.get_instagram_data_model()
                     return json.dumps(data)
             else:
                 return json.dumps({"message": "Choose instagram account that link to the shop", "flag": True})

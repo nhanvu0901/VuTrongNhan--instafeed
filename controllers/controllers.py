@@ -29,21 +29,14 @@ class ShopifyMint(http.Controller):
         if request.jsonrequest:
 
             # if(request.jsonrequest['media_id'])
-            media_exist = request.env['media.data'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
+            current_user = request.env.user.id
+            media_exist = request.env['media.data'].sudo().search([('admin', '=', current_user)],
                                                                   limit=1)
-            product_list = []
-            if media_exist:
-                for item in media_exist.selected_product:
-                    product = {
-                        "id": item.product_id,
-                        "image_src": item.product_img,
-                        "name": item.product_name
-                    }
-                    product_list.append(product)
+
 
             shop_url = request.jsonrequest['shopify_url']
             shopify_exist = request.env['shopify.mint'].sudo().search([('shop_url', '=', shop_url)], limit=1)
-            shopify_exist.initShopifySession(shopify_exist)
+            shopify_exist.initShopifySession()
             # data_shopify = shopify.Product.find()
             client = shopify.GraphQL()
             shop = shopify.Shop.current()
@@ -102,9 +95,12 @@ class ShopifyMint(http.Controller):
                 else:
                     request.env['product.data'].sudo().create(item)
                 list_product.append(item)
+            widget_exist = request.env['widget.data'].sudo().search(
+                ['&', ('admin', '=', current_user),
+                 ('is_display', '=', True)])
             get_product = {
                 "list_product": list_product,
-                "product_list": product_list
+                "product_list": widget_exist.media_data.get_post_product_tag() if widget_exist.media_data.selected_posts_global.selected_product else ''
             }
 
             return json.dumps(get_product)
@@ -112,7 +108,7 @@ class ShopifyMint(http.Controller):
     @http.route('/get_product_list', type='json', auth='none', cors='*', csrf=False, save_session=False)
     def get_product_list(self):
 
-        media_exist = request.env['media.data'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
+        media_exist = request.env['post.global'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
                                                               limit=1)
         list_product = media_exist.get_list_product()
         list_comment = media_exist.get_list_comment()
@@ -129,7 +125,7 @@ class ShopifyMint(http.Controller):
         list_product = []
         list_product_id = []
         if request.jsonrequest:
-            media_exist = request.env['media.data'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
+            media_exist = request.env['post.global'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
                                                                   limit=1)
             if len(media_exist.selected_product) <= len(request.jsonrequest['selected_product']):
                 for item in request.jsonrequest['selected_product']:
@@ -184,7 +180,7 @@ class ShopifyMint(http.Controller):
                     ['&', ('admin', '=', current_user), ('user_name', '=', instagram_user_name)], limit=1)
                 instagram_user_exist.update_instagram_media()
 
-                data = instagram_user_exist.get_instagram_data_model(shop_url)
+                data = instagram_user_exist.get_instagram_data_model()
                 # TODO sua phan cap nhat nay cap nhat like voi follow nx
 
                 return json.dumps(data)

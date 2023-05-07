@@ -324,7 +324,7 @@ export default {
       this.$emit('setWaiting',flag)
     },
     updatetFeed(res,title,spacing,onclickPost,layout,autoLayout,rows,columns,showLikes,showFollwers,
-    postToShow,displayTagPost,followers){
+    postToShow,displayTagPost,followers,media_data){
         this.choose_widget = res.choose_widget
        this.list_widget = res.list_widget
         let data= {
@@ -342,7 +342,7 @@ export default {
           postToShow:postToShow,
           displayTagPost : displayTagPost,
           followers:followers ,
-          media_url:this.instagram_data.media_url,
+          media_url:media_data,
           user_id:this.instagram_data.user_id,
           user_name:this.instagram_data.user_name,
           choose_widget: res.choose_widget,
@@ -524,149 +524,151 @@ export default {
     RowColumnModify(){
 
       this.$emit("paidFeature",this.postToShow,this.displayTagPost)
+      if(this.instagram_data.media_url !== null && this.instagram_data.media_url !== undefined){
+          if(this.postToShow === "Pictures only" && this.displayTagPost ==="On"){
 
-      if(this.postToShow === "Pictures only" && this.displayTagPost ==="On"){
+           let mapping_array =this.instagram_data.media_url.filter((item)=>{
+            return item.type === "IMAGE" && item.num_of_tagged_product !== 0
+          })
+            return mapping_array
+        }
+       else if(this.postToShow === "Pictures only"  && this.displayTagPost ==="Off"){
 
-         let mapping_array =this.instagram_data.media_url.filter((item)=>{
-          return item.type === "IMAGE" && item.num_of_tagged_product !== 0
+        let mapping_array = this.instagram_data.media_url.filter((item)=>{
+          return item.type === "IMAGE"
         })
-          return mapping_array
-      }
-     else if(this.postToShow === "Pictures only"  && this.displayTagPost ==="Off"){
+            return mapping_array
+        }
+        else if(this.postToShow === "Videos only"  && this.displayTagPost ==="On"){
 
-      let mapping_array = this.instagram_data.media_url.filter((item)=>{
-        return item.type === "IMAGE"
-      })
-          return mapping_array
-      }
-      else if(this.postToShow === "Videos only"  && this.displayTagPost ==="On"){
+          this.media_url = this.instagram_data.media_url.filter((item)=>{
+            return item.type === "VIDEO" && item.num_of_tagged_product !== 0
+          })
+        }
+        else if(this.postToShow === "Videos only" && this.displayTagPost ==="Off"){
 
-        this.media_url = this.instagram_data.media_url.filter((item)=>{
-          return item.type === "VIDEO" && item.num_of_tagged_product !== 0
-        })
-      }
-      else if(this.postToShow === "Videos only" && this.displayTagPost ==="Off"){
+          this.media_url = this.instagram_data.media_url.filter((item)=>{
+            return item.type === "VIDEO"
+          })
+        }
+        else if(this.postToShow === "All" && this.displayTagPost ==="On"){
 
-        this.media_url = this.instagram_data.media_url.filter((item)=>{
-          return item.type === "VIDEO"
-        })
-      }
-      else if(this.postToShow === "All" && this.displayTagPost ==="On"){
+          this.media_url = this.instagram_data.media_url.filter((item)=>{
+            return item.num_of_tagged_product !== 0
+          })
+        }
+        else{
+          this.media_url = this.instagram_data.media_url
+        }
 
-        this.media_url = this.instagram_data.media_url.filter((item)=>{
-          return item.num_of_tagged_product !== 0
-        })
-      }
-      else{
-        this.media_url = this.instagram_data.media_url
-      }
+        if(this.displayTagPost ==="On"){
 
-      if(this.displayTagPost ==="On"){
+          this.media_url = this.instagram_data.media_url.filter((item)=>{
+            return item.num_of_tagged_product !== 0
+          })
+        }
 
-        this.media_url = this.instagram_data.media_url.filter((item)=>{
-          return item.num_of_tagged_product !== 0
-        })
-      }
+         if(this.instagram_data !==''){
+               if(this.autoLayout === 'Auto'){
 
-       if(this.instagram_data !==''){
-             if(this.autoLayout === 'Auto'){
+               this.calculateWidth = '29.333%'
+                   if(this.rows === 0){
+                     let mapping_array=  this.media_url.filter((item,index)=>{
+                       return index ===0 ;
+                     })
 
-             this.calculateWidth = '29.333%'
-                 if(this.rows === 0){
+                     return  mapping_array;
+                   }
+                   else if(this.rows === 1){
                    let mapping_array=  this.media_url.filter((item,index)=>{
+                       return index  <=2  ;
+                     })
+
+                     return  mapping_array;
+                   }
+                   else {
+                     let mapping_array=  this.media_url.filter((item,index)=>{
+                       return index < this.rows *3  ;
+                     })
+                     return  mapping_array;
+                   }
+             }
+
+
+             else{
+               if(this.rows === 0){
+                 this.calculateWidth = '29.333%'
+                  let mapping_array=  this.media_url.filter((item,index)=>{
                      return index ===0 ;
                    })
 
                    return  mapping_array;
-                 }
-                 else if(this.rows === 1){
-                 let mapping_array=  this.media_url.filter((item,index)=>{
-                     return index  <=2  ;
-                   })
+               }
+               else if(this.columns ===0){
+                 return null
+               }
+               else if(this.rows !== 0 && this.columns !== 0){
+                  this.calculateWidth = '29.333%'
+                if(this.rows === this.columns){
 
-                   return  mapping_array;
-                 }
-                 else {
-                   let mapping_array=  this.media_url.filter((item,index)=>{
-                     return index < this.rows *3  ;
-                   })
-                   return  mapping_array;
-                 }
-           }
+                    if(this.rows === 1){
+                       let mapping_array=  this.media_url.filter((item,index)=>{
+                           return index ===0 ;
+                         })
 
-
-           else{
-             if(this.rows === 0){
-               this.calculateWidth = '29.333%'
-                let mapping_array=  this.media_url.filter((item,index)=>{
-                   return index ===0 ;
-                 })
-
-                 return  mapping_array;
-             }
-             else if(this.columns ===0){
-               return null
-             }
-             else if(this.rows !== 0 && this.columns !== 0){
-                this.calculateWidth = '29.333%'
-              if(this.rows === this.columns){
-
-                  if(this.rows === 1){
-                     let mapping_array=  this.media_url.filter((item,index)=>{
-                         return index ===0 ;
+                         return  mapping_array;
+                    }
+                    else{
+                       let mapping_array=  this.media_url.filter((item,index)=>{
+                       return index  <= this.rows +this.columns -1;
                        })
 
-                       return  mapping_array;
+                      let parentDiv = document.getElementsByClassName("insta-feed-pic");
+                      let parentDivWidth = parentDiv['0'].offsetWidth;
+                      this.calculateWidth = (90 / this.rows).toString()+"%"
+                      return  mapping_array;
+                    }
                   }
-                  else{
-                     let mapping_array=  this.media_url.filter((item,index)=>{
-                     return index  <= this.rows +this.columns -1;
-                     })
 
-                    let parentDiv = document.getElementsByClassName("insta-feed-pic");
-                    let parentDivWidth = parentDiv['0'].offsetWidth;
-                    this.calculateWidth = (90 / this.rows).toString()+"%"
-                    return  mapping_array;
+                  else if(this.rows ===1 && this.columns !== 1){
+                      let mapping_array=  this.media_url.filter((item,index)=>{
+                       return index  < this.columns ;
+                       })
+
+                      let parentDiv = document.getElementsByClassName("insta-feed-pic");
+                      let parentDivWidth = parentDiv['0'].offsetWidth;
+                      this.calculateWidth = (parentDivWidth / this.columns).toString()
+                      return  mapping_array;
                   }
-                }
 
-                else if(this.rows ===1 && this.columns !== 1){
-                    let mapping_array=  this.media_url.filter((item,index)=>{
-                     return index  < this.columns ;
-                     })
+                  else if(this.columns ===1 && this.rows !== 1){
+                      let mapping_array=  this.media_url.filter((item,index)=>{
+                       return index  < this.rows ;
+                       })
 
-                    let parentDiv = document.getElementsByClassName("insta-feed-pic");
-                    let parentDivWidth = parentDiv['0'].offsetWidth;
-                    this.calculateWidth = (parentDivWidth / this.columns).toString()
-                    return  mapping_array;
-                }
+                      let parentDiv = document.getElementsByClassName("insta-feed-pic");
 
-                else if(this.columns ===1 && this.rows !== 1){
-                    let mapping_array=  this.media_url.filter((item,index)=>{
-                     return index  < this.rows ;
-                     })
+                      this.calculateWidth = "55%"
+                      return  mapping_array;
+                  }
 
-                    let parentDiv = document.getElementsByClassName("insta-feed-pic");
+                  else {
+                      let mapping_array=  this.media_url.filter((item,index)=>{
+                       return index  <= this.columns ;
+                       })
 
-                    this.calculateWidth = "55%"
-                    return  mapping_array;
-                }
-
-                else {
-                    let mapping_array=  this.media_url.filter((item,index)=>{
-                     return index  <= this.columns ;
-                     })
-
-                    let parentDiv = document.getElementsByClassName("insta-feed-pic");
-                    let parentDivWidth = parentDiv['0'].offsetWidth;
-                    this.calculateWidth = (90 / this.columns).toString()+"%"
-                    return  mapping_array;
-                }
+                      let parentDiv = document.getElementsByClassName("insta-feed-pic");
+                      let parentDivWidth = parentDiv['0'].offsetWidth;
+                      this.calculateWidth = (90 / this.columns).toString()+"%"
+                      return  mapping_array;
+                  }
 
 
+               }
              }
-           }
-       }
+         }
+      }
+
 
 
     },

@@ -81,7 +81,7 @@ instagram_data:''
                       let widget =  JSON.parse(res.data.result).widget
                       let followers = widget.followers
                      this.$emit('updatetFeed',widget,widget.title,widget.spacing,widget.onclickPost,widget.layout,widget.autoLayout,widget.rows,widget.columns,widget.showLikes,widget.showFollwers,
-    widget.postToShow,widget.displayTagPost,followers)
+    widget.postToShow,widget.displayTagPost,followers,widget.media_data)
 
                        this.$emit('setWaiting',false)
                    }

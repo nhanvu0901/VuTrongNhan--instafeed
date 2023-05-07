@@ -24,11 +24,12 @@ class MainController(http.Controller):
 
     @http.route('/shopify_mint/main', auth='user', type="http", website=True)
     def main(self, **kw):
+        response ={"message":''}
         client_id = request.env['ir.config_parameter'].sudo().get_param('shopify_mint.meta_client_id')
         redirect_url = request.env['ir.config_parameter'].sudo().get_param('shopify_mint.meta_redirect_url')
         current_user = request.env.user
         data_transfer = {
-            "flag": json.dumps(True),
+            "flag": json.dumps(""),
             "data": json.dumps("")
         }
         shopify_app_exist = request.env['shopify.mint'].sudo().search(
@@ -36,14 +37,17 @@ class MainController(http.Controller):
         shop_url = shopify_app_exist.shop_url
         if current_user and shopify_app_exist:
             if "code" in kw:
-                self.update_instagram_user(kw["code"], shop_url)
-            instagram_user_exist = request.env['instagram.user'].sudo().search([
-                ('admin', '=', current_user.id)
-            ], limit=1)
-            data = self.get_instagram_user_data(instagram_user_exist, client_id, shop_url, redirect_url)
-            data_transfer['data'] = json.dumps(data)
+                response = self.update_instagram_user(kw["code"], shop_url)
+                if response.get("message") !='':
+                    data_transfer['flag'] = json.dumps(response.get("message"))
+            if response.get("message")=='':
+                instagram_user_exist = request.env['instagram.user'].sudo().search([
+                    ('admin', '=', current_user.id)
+                ], limit=1)
+                data = self.get_instagram_user_data(instagram_user_exist, client_id, shop_url, redirect_url)
+                data_transfer['data'] = json.dumps(data)
         else:
-            data_transfer['flag'] = json.dumps(False)
+            data_transfer['flag'] = json.dumps({"message":"Not user"})
         return request.render("shopify_mint.shopify_mint_template", data_transfer)
 
 
@@ -62,7 +66,7 @@ class MainController(http.Controller):
             if data_username:
 
                 instagram_user_exist = request.env['instagram.user'].sudo().search([
-                    ('user_id', '=', user_id)
+                    ('user_name', '=', data_username)
                 ], limit=1)
 
                 shopify_shop_exist = request.env['shopify.mint'].sudo().search([
@@ -108,11 +112,8 @@ class MainController(http.Controller):
                             widget.unlink()
 
                         instagram_user_exist_system.unlink()
-                elif not shopify_shop_exist:
-                    return json.dumps("Shop not exist")
-                else:
-
-                    if instagram_user_exist.shopify_shop.shop_url == shop_url:  # if the instagram already use by 1 shop
+                elif instagram_user_exist and shopify_shop_exist:
+                    if instagram_user_exist.admin == shopify_shop_exist.user:  # if the instagram already use by 1 shop
                         instagram_user_exist.write({
                             # "shopify_shop": shopify_shop_exist.id,
                             "ins_access_token": long_live_access_tk,
@@ -121,22 +122,28 @@ class MainController(http.Controller):
 
                         })
                     else:
-                        return json.dumps("Instagram user already been used")
+                        return {"message":"Instagram user already been used"}
+                else:
+                    return {"message":"Shop not exist"}
+
+
+
 
                 # TODO viet nut reload va cronjob
                 instagram_user_exist.update_instagram_media()
+                return {"message":""}
         else:
             return Response('fail', 404)
 
     def get_instagram_user_data(self, instagram_user_exist, client_id, shopify_url, redirect_url):
         if instagram_user_exist:
 
-            instagram_data = instagram_user_exist.get_instagram_data_model(shopify_url)
+            instagram_data = instagram_user_exist.get_instagram_data_model()
         else:
             instagram_data = ""
         data = {
             "client_id": client_id,
-
+            "user_name": instagram_user_exist.user_name,
             "redirect_url": redirect_url + '?shop_url=' + shopify_url,
             "instagram_data": instagram_data,
             "shopify_url": shopify_url

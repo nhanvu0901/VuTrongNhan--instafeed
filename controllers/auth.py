@@ -101,7 +101,7 @@ class Auth(http.Controller):
                 webhook_products_create.save()
                 print(f"{webhook_products_create.id}: {webhook_products_create.topic}")
 
-            current_user = request.env.user
+            current_user = request.env.user.id
             if shopify_app_exist:
                 shopify_app_exist.write({
                     "shop_url": domain,
@@ -109,7 +109,7 @@ class Auth(http.Controller):
                     "email": shop.email,
                     "shop_name": shop.name,
                     "shop_id": shop.id,
-                    "user": current_user.id,
+                    "user": current_user,
                     "currency": shop.currency,
                     "script_tag": script_tag,
                     "is_update_script_tag": True,
