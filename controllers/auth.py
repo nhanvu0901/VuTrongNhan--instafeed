@@ -101,7 +101,7 @@ class Auth(http.Controller):
                 webhook_products_create.save()
                 print(f"{webhook_products_create.id}: {webhook_products_create.topic}")
 
-            current_user = request.env.user.id
+            current_user = request.env.user
             if shopify_app_exist:
                 shopify_app_exist.write({
                     "shop_url": domain,

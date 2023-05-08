@@ -7,6 +7,8 @@ from base64 import b64encode
 import requests
 import shopify
 import werkzeug
+
+from ..static.instagram_auth.InstagramAPI import InstagramAPI
 from odoo import _
 from odoo import http
 from odoo.exceptions import ValidationError
@@ -19,7 +21,8 @@ class Frontend(http.Controller):
 
         shopify_shop_exist = request.env['shopify.mint'].sudo().search(
             [('shop_url', '=', request.jsonrequest.get('shop_url'))])
-
+        instagram_user = request.env['instagram.user'].sudo().search(
+            [('admin', '=',shopify_shop_exist.user.id )])
         if shopify_shop_exist:
             if request.jsonrequest.get('hashed_id') != '':
                 widget_exist = request.env['widget.data'].sudo().search(
@@ -61,11 +64,11 @@ class Frontend(http.Controller):
                         "configuration": widget_exist.widget_config.configuration,
                         "rows": widget_exist.widget_config.rows,
                         "columns": widget_exist.widget_config.columns,
-                        "instagram_user": widget_exist.instagram_user.user_name,
+                        "instagram_user": instagram_user.user_name,
                         "media_url": list_media,
                         "showLikes": widget_exist.widget_config.showLikes,
                         "showFollowers": widget_exist.widget_config.showFollwers,
-                        "followers": widget_exist.instagram_user.followers,
+                        "followers": instagram_user.followers,
                         "postToShow": widget_exist.widget_config.postToShow,
                         "displayTagPost": widget_exist.widget_config.displayTagPost,
                     }

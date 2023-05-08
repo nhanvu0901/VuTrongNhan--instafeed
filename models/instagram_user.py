@@ -142,6 +142,9 @@ class Instagram_User(models.Model):
     def save_media(self, media_exist, response_url):
         current_user = request.env.user.id
         instagram = InstagramAPI(request)
+        instagram_user_exist = request.env['instagram.user'].sudo().search([
+            ('user_name', '=', json.loads(response_url.text).get("username"))
+        ], limit=1)
         if media_exist:
             media_exist.write({
                 "media_id": json.loads(response_url.text).get('id'),
@@ -149,6 +152,7 @@ class Instagram_User(models.Model):
                 "caption": json.loads(response_url.text).get('caption'),
                 "permalink": json.loads(response_url.text).get('permalink'),
                 "admin": current_user,
+                "instagram_user":instagram_user_exist.id,
                 "created_date": json.loads(response_url.text).get('timestamp'),
                 "media_like": ''
             })
@@ -177,6 +181,7 @@ class Instagram_User(models.Model):
                 "caption": json.loads(response_url.text).get('caption'),
                 "permalink": json.loads(response_url.text).get('permalink'),
                 "admin":current_user,
+                "instagram_user":instagram_user_exist.id,
                 "created_date": json.loads(response_url.text).get('timestamp'),
                 "media_like": '',
             })

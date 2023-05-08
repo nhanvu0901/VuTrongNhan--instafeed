@@ -29,8 +29,8 @@
       <MainContent @update_instagram_data="update_instagram_data" @setError="setError" @paidFeature="paidFeature" @setWaiting="setWaiting" :instagram_data="instagram_data" @openImageModal="openImageModal"/>
       </div>
 
-      <div v-if="is_open_tag_product">
-       <TagProduct @update_instagram_data="update_instagram_data" :instagram_data="instagram_data"  @closeTagProduct="closeTagProduct" :media_id="media_id" @watch_list_product="watch_list_product"/>
+      <div v-if="modalProductSelect">
+       <TagProduct :modalProductSelectApp="modalProductSelect" @update_instagram_data="update_instagram_data" :instagram_data="instagram_data"  @closeTagProduct="closeTagProduct" :media_id="media_id" @watch_list_product="watch_list_product"/>
       </div>
 
    </div>
@@ -89,7 +89,7 @@ export default {
               image_src:'',
               index:0,
               caption:'',
-              is_open_tag_product:false,
+              modalProductSelect:false,
               date_created:'',
               permalink:'',
               media_id:'',
@@ -110,10 +110,10 @@ export default {
   methods:{
       closeModal(){this.is_open_image_modal = false},
       closeTagProduct(){
-        this.is_open_tag_product = false
+        this.modalProductSelect = false
       },
       openTagProduct(){
-        this.is_open_tag_product = true
+        this.modalProductSelect = true
       },
       watch_list_product(data){
         this.watch_list =data

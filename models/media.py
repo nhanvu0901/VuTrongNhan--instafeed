@@ -113,7 +113,7 @@ class NestWidgetPostGlobal(models.Model):
     thumbnail_url = fields.Char(string="thumbnail url")
     created_date = fields.Char(string="Created at")
     selected_product = fields.Many2many('product.data', string="Selected Product")
-
+    instagram_user = fields.Many2one('instagram.user')
     media_like = fields.Char('Likes')
     count_comment = fields.Char('')
     comment = fields.One2many("media.comment", "media", string="Comment")
