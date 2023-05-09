@@ -97,7 +97,7 @@ class NewFeed(http.Controller):
                     })
 
                 data = {
-                    "widget": widget_data.get_widgets(),
+                    "widget": widget_data.get_widgets() if widget_data != '' else '',
                     "followers":instagram_user_exist.followers
                 }
                 return json.dumps(data)

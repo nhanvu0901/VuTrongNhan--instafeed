@@ -6,3 +6,4 @@ access_product_data,access.product.data,model_product_data,,1,1,1,1
 access_widget_data,access.widget.data,model_widget_data,,1,1,1,1
 access_media_comment,access.media.comment,model_media_comment,,1,1,1,1
 access_widget_config,access.widget.config,model_widget_config,,1,1,1,1
+access_post_global,access.post.global,model_post_global,,1,1,1,1

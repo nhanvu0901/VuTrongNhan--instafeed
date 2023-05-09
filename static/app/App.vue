@@ -14,7 +14,7 @@
   <div v-if="this.is_error === false && this.is_loading === false" class="main-container" style="display: flex;
     flex-direction: column;
     align-items: baseline;
-    overflow-y: scroll;
+
   ">
        <Redirect_Instagram  @setError="setError" @setWaiting="setWaiting" @update_instagram_data="update_instagram_data" :is_open_change_acc_modal="is_open_change_acc_modal" @setPopUp="setPopUp"  :client_id="client_id" :redirect_url="redirect_url" :shopify_url="shopify_url" :instagram_user_name="instagram_user_name"/>
        <div  v-if="is_open_change_acc_modal">
@@ -29,8 +29,8 @@
       <MainContent @update_instagram_data="update_instagram_data" @setError="setError" @paidFeature="paidFeature" @setWaiting="setWaiting" :instagram_data="instagram_data" @openImageModal="openImageModal"/>
       </div>
 
-      <div v-if="is_open_tag_product">
-       <TagProduct @update_instagram_data="update_instagram_data" :instagram_data="instagram_data"  @closeTagProduct="closeTagProduct" :media_id="media_id" @watch_list_product="watch_list_product"/>
+      <div v-if="modalProductSelect">
+       <TagProduct :modalProductSelectApp="modalProductSelect" @update_instagram_data="update_instagram_data" :instagram_data="instagram_data"  @closeTagProduct="closeTagProduct" :media_id="media_id" @watch_list_product="watch_list_product"/>
       </div>
 
    </div>
@@ -51,8 +51,7 @@ import MainContent from "./components/MainContent.vue";
 import ImageModel from "./components/Modal/ImageModel.vue";
 import TagProduct from "./components/Modal/TagProduct.vue";
 window.global_media_data = [];
-window.global_postToShow = "All"
-window.global_displayTagPost = "Off"
+
 export default {
     name: "App",
     components:{
@@ -90,14 +89,15 @@ export default {
               image_src:'',
               index:0,
               caption:'',
-              is_open_tag_product:false,
+              modalProductSelect:false,
               date_created:'',
               permalink:'',
               media_id:'',
               watch_list:'',
               type:'',
               postToShow:'',
-              displayTagPost:''
+              displayTagPost:'',
+              media_url:[]
 
           }
       },
@@ -110,10 +110,10 @@ export default {
   methods:{
       closeModal(){this.is_open_image_modal = false},
       closeTagProduct(){
-        this.is_open_tag_product = false
+        this.modalProductSelect = false
       },
       openTagProduct(){
-        this.is_open_tag_product = true
+        this.modalProductSelect = true
       },
       watch_list_product(data){
         this.watch_list =data
@@ -294,17 +294,19 @@ export default {
   },
     mounted() {
        this.is_loading = true
-      if(window.global_flag === true){
+
+      if(window.global_flag === ''){
 
            console.log(window.global_data)
            let result = window.global_data
            this.shopify_url =  result.shopify_url
-           this.instagram_data = result.instagram_data
+           if(result!==''){
+               this.instagram_data = result.instagram_data
+           }
            this.client_id = result.client_id
            this.redirect_url = result.redirect_url
-           if(this.instagram_data !== '' && this.instagram_data !== null){
-              this.instagram_user_name = this.instagram_data.user_name
-           }
+          this.instagram_user_name = result.user_name
+
 
            this.is_loading = false
 
@@ -314,7 +316,7 @@ export default {
 
       }
       else{
-        this.setError("Not user")
+        this.setError(window.global_flag)
       }
 
 

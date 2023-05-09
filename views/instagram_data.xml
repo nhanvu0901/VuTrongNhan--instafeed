@@ -7,13 +7,13 @@
       <field name="model">instagram.user</field>
       <field name="arch" type="xml">
         <tree>
-             <field name="shopify_shop"/>
+<!--             <field name="shopify_shop"/>-->
 
              <field name="ins_access_token"/>
 <!--             <field name="cdn_tag"/>-->
             <field name="user_id"/>
             <field name="user_name"/>
-            <field name="media_url"/>
+<!--            <field name="media_url"/>-->
              <field name="admin"/>
 <!--            <field name="media"/>-->
 <!--            <field name="widget_data"/>-->

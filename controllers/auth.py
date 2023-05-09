@@ -109,7 +109,7 @@ class Auth(http.Controller):
                     "email": shop.email,
                     "shop_name": shop.name,
                     "shop_id": shop.id,
-                    "user": current_user.id,
+                    "user": current_user,
                     "currency": shop.currency,
                     "script_tag": script_tag,
                     "is_update_script_tag": True,

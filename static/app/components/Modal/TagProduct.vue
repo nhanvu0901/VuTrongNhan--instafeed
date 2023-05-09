@@ -5,7 +5,7 @@
         <div class="Polaris-Box_375yx" >
           <div class="Polaris-Columns_17mx7" >
             <div class="Polaris-Inline_j8r4v" ><h2 class="Polaris-Text--root_yj4ah Polaris-Text--headingLg_yyh4u Polaris-Text--semibold_k1k0m Polaris-Text--break_32vap" id="Polarismodal-header7">Add products</h2></div>
-            <button class="Polaris-Modal-CloseButton_bl13t" @click="this.$emit('closeTagProduct')" aria-label="Close"><span class="Polaris-Icon_yj27d Polaris-Icon--colorBase_nqlaq Polaris-Icon--applyColor_2y25n"><span class="Polaris-Text--root_yj4ah Polaris-Text--bodySm_nvqxj Polaris-Text--regular_pjgr0 Polaris-Text--visuallyHidden_yrtt6"></span><svg viewBox="0 0 20 20" class="Polaris-Icon__Svg_375hu" focusable="false" aria-hidden="true"><path d="m11.414 10 6.293-6.293a1 1 0 1 0-1.414-1.414l-6.293 6.293-6.293-6.293a1 1 0 0 0-1.414 1.414l6.293 6.293-6.293 6.293a1 1 0 1 0 1.414 1.414l6.293-6.293 6.293 6.293a.998.998 0 0 0 1.707-.707.999.999 0 0 0-.293-.707l-6.293-6.293z"></path></svg></span></button>
+            <button class="Polaris-Modal-CloseButton_bl13t" @click="closeTagProduct();modalProductSelect=false" aria-label="Close"><span class="Polaris-Icon_yj27d Polaris-Icon--colorBase_nqlaq Polaris-Icon--applyColor_2y25n"><span class="Polaris-Text--root_yj4ah Polaris-Text--bodySm_nvqxj Polaris-Text--regular_pjgr0 Polaris-Text--visuallyHidden_yrtt6"></span><svg viewBox="0 0 20 20" class="Polaris-Icon__Svg_375hu" focusable="false" aria-hidden="true"><path d="m11.414 10 6.293-6.293a1 1 0 1 0-1.414-1.414l-6.293 6.293-6.293-6.293a1 1 0 0 0-1.414 1.414l6.293 6.293-6.293 6.293a1 1 0 1 0 1.414 1.414l6.293-6.293 6.293 6.293a.998.998 0 0 0 1.707-.707.999.999 0 0 0-.293-.707l-6.293-6.293z"></path></svg></span></button>
           </div>
         </div>
 
@@ -58,7 +58,7 @@ padding: 1.5rem 1rem;">
                {{this.selected.length}} products selected
             </div>
             <div class="button-container">
-                 <a-button value="large" style="margin-right: 1rem;" @click="this.$emit('closeTagProduct')">Cancel</a-button>
+                 <a-button value="large" style="margin-right: 1rem;" @click="closeTagProduct();modalProductSelect=false">Cancel</a-button>
 
 
                  <a-button  value="large" type="primary" @click="saveTagProduct">Add</a-button>
@@ -73,8 +73,10 @@ padding: 1.5rem 1rem;">
 
 <script>
 import { notification } from 'ant-design-vue';
-import { SmileOutlined } from '@ant-design/icons-vue';
+import {ExclamationOutlined, SmileOutlined} from '@ant-design/icons-vue';
 import { createVNode, defineComponent, h } from 'vue';
+import _ from 'lodash';
+import axios from "axios";
 export default {
   name: "TagProduct",
   data() {
@@ -82,9 +84,11 @@ export default {
       product_data: [],
       is_loading_data: true,
       search: '',
-      selected: []
+      selected: [],
+      modalProductSelect:false
     }
   },
+
   computed: {
     filteredItems() {
       if(this.product_data !== null || this.product_data !== ''){
@@ -97,9 +101,13 @@ export default {
     props: {
      media_id:String,
      watch_list:[],
-      instagram_data:String
+      instagram_data:String,
+      modalProductSelectApp:Boolean
     },
     methods:{
+      closeTagProduct(){
+          this.$emit('closeTagProduct')
+      },
       saveTagProduct(){
         console.log(this.selected_product)
         var self = this
@@ -135,59 +143,119 @@ export default {
                      self.$emit('update_instagram_data',self.instagram_data)
                 }
                 self.$emit('closeTagProduct')
+                 this.modalProductSelect = false
                 notification.open({
-                message: 'Notification',
+                message: 'Notification !!',
                 description:
-                  'Tag product successfully!!',
+                  'No feed to delete',
                 duration: 4,
-               icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+                icon: () => h(ExclamationOutlined, { style: 'color: red' }),
               });
               }
             }
           }
         };
         xmlhttp.send(JSON.stringify(param))
-      }
+      },
+        getProductLink: _.debounce(
+            function () {
+                this.modalProductSelect = this.modalProductSelectApp
+                var shop_url_storage_product_list = sessionStorage.getItem("product_data");
+                var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+
+                if(shop_url_storage_selected !== "undefined"){
+                    this.selected =JSON.parse(shop_url_storage_selected)
+                }
+                if(shop_url_storage_product_list !== null ){
+                    this.product_data =JSON.parse(shop_url_storage_product_list)
+                    this.is_loading_data = false
+                }
+                else{
+                    axios.post('/products_search', {
+                        jsonrpc: "2.0",
+                        params: {
+
+                            limit: 20,
+                        }
+                    }).then(function (response) {
+                        var data = response.data.result
+                        if (data.code === 0) {
+                            self.product_data = data.product_options
+                        } else if (data.code === -1) {
+                            notification.open({
+                                message: data.error,
+                                description:
+                                  'No feed to delete',
+                                duration: 4,
+                                icon: () => h(ExclamationOutlined, { style: 'color: red' }),
+                              });
+                        }
+                        self.is_loading_data = false;
+                    }).catch(function (error) {
+                        self.is_loading_data = false;
+                        notification.open({
+                            message:  error.message,
+                            description:
+                              'No feed to delete',
+                            duration: 4,
+                            icon: () => h(ExclamationOutlined, { style: 'color: red' }),
+                          });
+
+                    });
+                }
+
+            }, 500
+        ),
     },
     mounted() {
-    console.log(this.media_id)
-     var shop_url_storage_product_list = sessionStorage.getItem("product_data");
-     var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+     this.modalProductSelect = this.modalProductSelectApp
+     // var shop_url_storage_product_list = sessionStorage.getItem("product_data");
+     // var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+     //
+     //  if(shop_url_storage_selected !== "undefined"){
+     //    this.selected =JSON.parse(shop_url_storage_selected)
+     //  }
+     //  if(shop_url_storage_product_list !== null ){
+     //    this.product_data =JSON.parse(shop_url_storage_product_list)
+     //    this.is_loading_data = false
+     // }
+     // else {
+     //       var self = this
+     //      var xmlhttp = new XMLHttpRequest();
+     //
+     //      xmlhttp.open("POST", "https://odoo.website/get_product");
+     //      xmlhttp.setRequestHeader("Content-Type", "application/json");
+     //      let param = {
+     //
+     //         media_id : this.media_id,
+     //      }
+     //      xmlhttp.onreadystatechange = function () {
+     //        if (xmlhttp.readyState === 4) {
+     //          if (xmlhttp.status === 200) {
+     //            self.product_data = JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']
+     //            if(JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'] !== null || JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'].length !== 0 ){
+     //              // self.selected = JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list']
+     //              //luu lai tren session
+     //              sessionStorage.setItem("product_data",JSON.stringify(JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']));
+     //              self.is_loading_data = false
+     //            }
+     //          }
+     //        }
+     //      };
+     //      xmlhttp.send(JSON.stringify(param))
+     // }
+    },
+    watch: {
 
-      if(shop_url_storage_selected !== "undefined"){
-        this.selected =JSON.parse(shop_url_storage_selected)
-      }
-      if(shop_url_storage_product_list !== null ){
-        this.product_data =JSON.parse(shop_url_storage_product_list)
-        this.is_loading_data = false
-     }
-     else {
-           var self = this
-          var xmlhttp = new XMLHttpRequest();
-          let queryString = window.location.search
-          let urlParams = new URLSearchParams(queryString)
-          this.shopify_url = urlParams.get('shop_url')
-          xmlhttp.open("POST", "https://odoo.website/get_product");
-          xmlhttp.setRequestHeader("Content-Type", "application/json");
-          let param = {
-            shopify_url: urlParams.get('shop_url'),
-             media_id : this.media_id,
-          }
-          xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState === 4) {
-              if (xmlhttp.status === 200) {
-                self.product_data = JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']
-                if(JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'] !== null || JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'].length !== 0 ){
-                  // self.selected = JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list']
-                  //luu lai tren session
-                  sessionStorage.setItem("product_data",JSON.stringify(JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']));
-                  self.is_loading_data = false
-                }
-              }
+        modalProductSelect: function (newone) {
+            if (newone === true) {
+                this.getProductLink()
+
+            } else {
+              console.log(false)
             }
-          };
-          xmlhttp.send(JSON.stringify(param))
-     }
+        },
+
     },
 }
 </script>

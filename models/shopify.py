@@ -33,7 +33,7 @@ class SApp(models.Model):
 
 
     @api.model
-    def initShopifySession(self,shop):
+    def initShopifySession(self):
 
 
         api_version = self.env['ir.config_parameter'].sudo().get_param('shopify_mint.api_version_shopify_mint')

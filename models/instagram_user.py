@@ -23,14 +23,14 @@ class Instagram_User(models.Model):
     _name = 'instagram.user'
     _description = 'Instagram User'
     #TODO bo thang shopify_shop di
-    shopify_shop = fields.Many2one('shopify.mint', 'Shopify Shop', ondelete='cascade')
+    # shopify_shop = fields.Many2one('shopify.mint', 'Shopify Shop', ondelete='cascade')
 
     ins_access_token = fields.Char()
     # cdn_tag = fields.Char()
 
     user_id = fields.Char(string="User ID")
     user_name = fields.Char(string="User name")
-    media_url = fields.Char(string="Media URl")
+    # media_url = fields.Char(string="Media URl")
 
 
     followers = fields.Char('Followers', default='')
@@ -42,42 +42,46 @@ class Instagram_User(models.Model):
     time_update_post = fields.Char()
     log_error = fields.Char()
 
-    def get_instagram_data_model(self, shop_url):
+    def get_instagram_data_model(self):
         try:
-            if self.shopify_shop.shop_url == shop_url:
+            current_user = request.env.user.id
+            if self.admin.id == current_user:
                 list_media = request.env['media.data'].get_list_media()
 
                 widget_exist = self.env['widget.data'].get_active_widget()
 
                 list_widget = self.env['widget.data'].get_list_widget()
-                choose_widget = {
-                    "hashed_id": widget_exist.hashed_id,
-                    "number": widget_exist.id
-                }
-                data = {
-                    "followers": self.followers,
-                    "user_name": self.user_name,
-                    "user_id": self.user_id,
-                    "media_url": list_media,
 
-                    "choose_widget": choose_widget,
+                if widget_exist != '':
+                    choose_widget = {
+                        "hashed_id": widget_exist.hashed_id,
+                        "number": widget_exist.id
+                    }
+                    data = {
+                        "followers": self.followers,
 
-                    "is_display": widget_exist.is_display,
+                        "user_id": self.user_id,
+                        "media_url": list_media,
 
-                    "title": widget_exist.widget_config.feed_title,
-                    "spacing": widget_exist.widget_config.spacing,
-                    "onclickPost": widget_exist.widget_config.on_post_click,
-                    "layout": widget_exist.widget_config.layout,
-                    "autoLayout": widget_exist.widget_config.configuration,
-                    "rows": widget_exist.widget_config.rows,
-                    "columns": widget_exist.widget_config.columns,
-                    "showLikes": widget_exist.widget_config.showLikes,
-                    "showFollwers": widget_exist.widget_config.showFollwers,
-                    "postToShow": widget_exist.widget_config.postToShow,
-                    "displayTagPost": widget_exist.widget_config.displayTagPost,
-                    "list_widget": list_widget
-                }
-                return data
+                        "choose_widget": choose_widget,
+
+                        "is_display": widget_exist.is_display,
+
+                        "title": widget_exist.widget_config.feed_title,
+                        "spacing": widget_exist.widget_config.spacing,
+                        "onclickPost": widget_exist.widget_config.on_post_click,
+                        "layout": widget_exist.widget_config.layout,
+                        "autoLayout": widget_exist.widget_config.configuration,
+                        "rows": widget_exist.widget_config.rows,
+                        "columns": widget_exist.widget_config.columns,
+                        "showLikes": widget_exist.widget_config.showLikes,
+                        "showFollwers": widget_exist.widget_config.showFollwers,
+                        "postToShow": widget_exist.widget_config.postToShow,
+                        "displayTagPost": widget_exist.widget_config.displayTagPost,
+                        "list_widget": list_widget
+                    }
+                    return data
+                else:return ''
         except Exception as err:
             print(err)
 
@@ -90,7 +94,7 @@ class Instagram_User(models.Model):
                 "followers": json.loads(response_instagram_data.text).get('followers_count')
             })
             for data in json.loads(response_instagram_data.text).get('media').get('data'):
-                media_exist = request.env['media.data'].sudo().search(
+                media_exist = request.env['post.global'].sudo().search(
                     [('media_id', '=', data.get('id'))], limit=1)
                 if data.get('comments'):
                     # unlink the all old comment
@@ -125,9 +129,9 @@ class Instagram_User(models.Model):
                     list_media_url = []
                     for data in data_media.get('data'):
                         response_url = instagram.get_details_instagram_media(data, self.ins_access_token)
-                        media_exist = request.env['media.data'].sudo().search(
+                        post = request.env['post.global'].sudo().search(
                             [('media_id', '=', json.loads(response_url.text).get('id'))], limit=1)
-                        self.save_media(media_exist, response_url)
+                        self.save_media(post, response_url)
 
             except Exception as err:
                 print(err)
@@ -138,6 +142,9 @@ class Instagram_User(models.Model):
     def save_media(self, media_exist, response_url):
         current_user = request.env.user.id
         instagram = InstagramAPI(request)
+        instagram_user_exist = request.env['instagram.user'].sudo().search([
+            ('user_name', '=', json.loads(response_url.text).get("username"))
+        ], limit=1)
         if media_exist:
             media_exist.write({
                 "media_id": json.loads(response_url.text).get('id'),
@@ -145,6 +152,7 @@ class Instagram_User(models.Model):
                 "caption": json.loads(response_url.text).get('caption'),
                 "permalink": json.loads(response_url.text).get('permalink'),
                 "admin": current_user,
+                "instagram_user":instagram_user_exist.id,
                 "created_date": json.loads(response_url.text).get('timestamp'),
                 "media_like": ''
             })
@@ -167,15 +175,15 @@ class Instagram_User(models.Model):
                 })
 
         else:
-            media_exist = request.env['media.data'].create({
+            media_exist = request.env['post.global'].create({
                 "media_id": json.loads(response_url.text).get('id'),
                 "type": json.loads(response_url.text).get('media_type'),
                 "caption": json.loads(response_url.text).get('caption'),
                 "permalink": json.loads(response_url.text).get('permalink'),
-                "admin": current_user,
+                "admin":current_user,
+                "instagram_user":instagram_user_exist.id,
                 "created_date": json.loads(response_url.text).get('timestamp'),
                 "media_like": '',
-
             })
             if json.loads(response_url.text).get('media_type') == 'CAROUSEL_ALBUM':
                 data_child_image = instagram.get_child_media_details(json.loads(response_url.text).get(

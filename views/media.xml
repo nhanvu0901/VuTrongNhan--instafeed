@@ -7,27 +7,40 @@
       <field name="model">media.data</field>
       <field name="arch" type="xml">
         <tree>
-            <field name="media_id"/>
+            <field name="name"/>
+<!--            <field name="media_id"/>-->
+             <field name="admin"/>
+             <field name="selected_posts_global"/>
+
+
+        </tree>
+      </field>
+    </record>
+
+
+    <record model="ir.ui.view" id="post_shopify_mint">
+      <field name="name">post media shopify mint</field>
+      <field name="model">post.global</field>
+      <field name="arch" type="xml">
+        <tree>
+
+<!--            <field name="media_id"/>-->
              <field name="admin"/>
 
-             <field name="media_url"/>
 
-            <field name="type"/>
-            <field name="caption"/>
-            <field name="permalink"/>
-             <field name="thumbnail_url"/>
-            <field name="created_date"/>
-            <field name="permalink"/>
-            <field name="selected_product"/>
-            <field name="media_like"/>
-             <field name="count_comment"/>
-            <field name="comment"/>
+
         </tree>
       </field>
     </record>
 
 
     <!-- actions opening views on models -->
+
+      <record model="ir.actions.act_window" id="media_post_action_window">
+        <field name="name">Media Post</field>
+        <field name="res_model">post.global</field>
+        <field name="view_mode">tree,form</field>
+    </record>
 
     <record model="ir.actions.act_window" id="media_user_shopify_mint_action">
       <field name="name">media action</field>
@@ -38,7 +51,9 @@
 
     <!-- Top menu item -->
 
-    <menuitem name="Media Data" id="menu_media_shopify_mint_app" parent="menu_root"  action="media_user_shopify_mint_action"/>
+    <menuitem name="Media" id="menu_media_shopify_mint_app" parent="menu_root"/>
+       <menuitem name="Media Data" id="menu_media_src_shopify_mint_app" parent="menu_media_shopify_mint_app"  action="media_user_shopify_mint_action"/>
+       <menuitem name="Post" id="menu_post_shopify_mint_app" parent="menu_media_shopify_mint_app"  action="media_post_action_window"/>
 
 
 

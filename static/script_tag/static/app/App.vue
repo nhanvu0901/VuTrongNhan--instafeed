@@ -220,7 +220,7 @@ export default {
     },
   },
     mounted() {
-      this.hashed_id = this.$.attrs.data.hashed_id
+      this.hashed_id = this.$.attrs.data.widget_id
 
 
 

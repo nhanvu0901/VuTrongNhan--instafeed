@@ -21,7 +21,7 @@ class Widget(models.Model):
     admin = fields.Many2one('res.users')
 
 
-    def create_action(self,):
+    def create_action(self):
         list_media_id = request.env['media.data'].get_list_media_id()
         # widget_id = convertDate.datetime.now().strftime('%Y%m%d%H%M%S%f')
         widget_exist = self.sudo().create({
@@ -96,7 +96,8 @@ class Widget(models.Model):
             [ ('admin', '=', current_user)])
         if not widget_exist:
 
-            widget_exist=  self.create_action()
+            # widget_exist=  self.create_action()
+            return ''
         else:
             if len(widget_exist) > 1:
                 widget_exist = request.env['widget.data'].sudo().search(
