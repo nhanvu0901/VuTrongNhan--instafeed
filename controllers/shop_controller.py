@@ -32,7 +32,7 @@ class Frontend(http.Controller):
                 if widget_exist:
                     for item in widget_exist.media_data.selected_posts_global:
                         list_product = []
-                        for product in item.selected_product:
+                        for product in item.hotspot:
                             product_data = {
                                 "product_id": product.product_id,
                                 "product_img": product.product_img,
@@ -50,7 +50,7 @@ class Frontend(http.Controller):
                             'media_url': item.media_url,
                             "media_id": item.media_id,
                             "media_like": item.media_like,
-                            "num_of_tagged_product": len(item.selected_product),
+                            "num_of_tagged_product": len(item.hotspot),
                             "list_comment": list_comment,
                             "media_count": item.count_comment,
 

@@ -6,7 +6,7 @@ from odoo.tools.safe_eval import datetime
 import traceback
 
 class Media(models.Model):
-    _name = 'media.data'
+    _name = 'media.source'
     _description = 'Instagram Media'
 
 
@@ -15,7 +15,7 @@ class Media(models.Model):
 
     admin = fields.Many2one('res.users')
 
-    selected_posts_global = fields.Many2many('post.global')
+    selected_posts_global = fields.Many2many('post.private')
 
     #TODO xoa instagram_user va widget_data
     # widget_data = fields.Many2many('widget.data')
@@ -64,7 +64,7 @@ class Media(models.Model):
                     list_comment.append(comment_data)
 
                 list_product = []
-                for product in media_url.selected_product:
+                for product in media_url.hotspot:
                     product_data = {
                         "id": product.product_id,
                         "image_src": product.product_img,
@@ -82,7 +82,7 @@ class Media(models.Model):
                     "selected_product": list_product,
                     "media_like": media_url.media_like,
                     "media_count": media_url.count_comment,
-                    "num_of_tagged_product": len(media_url.selected_product),
+                    "num_of_tagged_product": len(media_url.hotspot),
                     "list_comment": list_comment,
 
                 }
@@ -94,7 +94,7 @@ class Media(models.Model):
 
         product_list = []
         if self.selected_posts_global:
-            for item in self.selected_posts_global.selected_product:
+            for item in self.selected_posts_global.hotspot:
                 product = {
                     "id": item.product_id,
                     "image_src": item.product_img,
@@ -104,7 +104,7 @@ class Media(models.Model):
 
 
 class NestWidgetPostGlobal(models.Model):
-    _name = 'post.global'
+    _name = 'post.private'
     media_id = fields.Char(string="ID")
     media_url = fields.Char(string="media url")
     type = fields.Char(string="media type")
@@ -112,7 +112,7 @@ class NestWidgetPostGlobal(models.Model):
     permalink = fields.Char(string="permalink")
     thumbnail_url = fields.Char(string="thumbnail url")
     created_date = fields.Char(string="Created at")
-    selected_product = fields.Many2many('product.data', string="Selected Product")
+    hotspot = fields.One2many('hotspot.private', 'post')
     instagram_user = fields.Many2one('instagram.user')
     media_like = fields.Char('Likes')
     count_comment = fields.Char('')
@@ -121,7 +121,7 @@ class NestWidgetPostGlobal(models.Model):
 
     def get_list_product(self):
         list_product=[]
-        for item in self.selected_product:
+        for item in self.hotspot:
             list_product.append(item.get_product())
         return list_product
 

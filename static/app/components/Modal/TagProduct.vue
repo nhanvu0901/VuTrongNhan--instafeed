@@ -11,10 +11,10 @@
 
         <div style="padding: 1rem">
            <a-input-search
-              v-model:value="search"
+              v-model:value="search_query_product"
               placeholder="Search products"
               style="width: 100%;"
-
+              @change="searchProduct"
               size="large"
             />
         </div>
@@ -25,21 +25,21 @@ height: 10px;
 overflow-x: hidden;
 position: initial;
 padding-bottom: 20px; ">
-           <div v-if="is_loading_data" style="text-align: center">
+           <div v-if="is_loading_data === true" style="text-align: center">
             <a-spin size="large" />
           </div>
           <div v-else>
             <table style="width: 100%">
-                <div v-for="(item,index) in this.filteredItems" class="tr-container" style="display: flex;height: 5rem;
+                <div v-for="product in product_data" class="tr-container" style="display: flex;height: 5rem;
               border-top: 2px solid #e1e3e5;padding: 0px 2rem;">
-                  <tr :key="item.product_id" class="table-row" style="display: flex;gap: 2rem;
+                  <tr :key="product.product_id" class="table-row" style="display: flex;gap: 2rem;
 align-items: center;">
                           <td>
                             <input style="width: 1.2rem;
-height: 1.2rem;" type="checkbox" :id="item.product_id"  v-model="selected"  :value="{id:item.product_id,image_src:item.product_img,name:item.product_name}"/>
+height: 1.2rem;" type="checkbox" :id="product.product_id"  v-model="selected"  :value="{id:product.product_id,img_src:product.product_img,name:product.product_name,handle:product.handle,variant_num:product.variant_num,product_url:product.product_url,price_range:product.price_range}"/>
                           </td>
-                          <td><img :src="item.product_img" alt="" style="width: 3rem;height: 3rem;"></td>
-                          <td>{{ item.product_name }}</td>
+                          <td><img :src="product.product_img" alt="" style="width: 3rem;height: 3rem;"></td>
+                          <td>{{ product.product_name }}</td>
 
                        </tr>
                 </div>
@@ -61,7 +61,7 @@ padding: 1.5rem 1rem;">
                  <a-button value="large" style="margin-right: 1rem;" @click="closeTagProduct();modalProductSelect=false">Cancel</a-button>
 
 
-                 <a-button  value="large" type="primary" @click="saveTagProduct">Add</a-button>
+                 <a-button  value="large" type="primary" @click="addProduct">Add</a-button>
             </div>
         </div>
 
@@ -82,8 +82,8 @@ export default {
   data() {
     return {
       product_data: [],
-      is_loading_data: true,
-      search: '',
+      is_loading_data: false,
+      search_query_product: null,
       selected: [],
       modalProductSelect:false
     }
@@ -108,79 +108,150 @@ export default {
       closeTagProduct(){
           this.$emit('closeTagProduct')
       },
-      saveTagProduct(){
-        console.log(this.selected_product)
-        var self = this
-        var xmlhttp = new XMLHttpRequest();
-        let queryString = window.location.search
-        let urlParams = new URLSearchParams(queryString)
-        this.shopify_url = urlParams.get('shop_url')
-        xmlhttp.open("POST", "https://odoo.website/set_tag_product");
-        xmlhttp.setRequestHeader("Content-Type", "application/json");
-        let param = {
-          shopify_url: urlParams.get('shop_url'),
-          media_id : this.media_id,
-          selected_product:this.selected
-        }
-        xmlhttp.onreadystatechange = function () {
-          if (xmlhttp.readyState === 4) {
-            if (xmlhttp.status === 200) {
-              console.log((JSON.parse(xmlhttp.responseText).result))
-              if(JSON.parse(xmlhttp.responseText).result.includes("200")){
-                //check xem trong session ds selected cua thang media_id chua co roi thi update
-                var shop_url_storage_selected = sessionStorage.getItem("selected#"+self.media_id);
-                if(shop_url_storage_selected !== null){
-                   self.$emit('watch_list_product',self.selected)
-                   sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.selected));
-                    let index_item = 0
-                    for (let i = 0; i < self.instagram_data.media_url.length; i++) {
-                      if(self.instagram_data.media_url[i].media_id === self.media_id){
-                         index_item =i
-                        break
-                       }
-                    }
-                     self.instagram_data.media_url[index_item].num_of_tagged_product =  self.selected.length;
-                     self.$emit('update_instagram_data',self.instagram_data)
-                }
-                self.$emit('closeTagProduct')
-                 this.modalProductSelect = false
-                notification.open({
-                message: 'Notification !!',
-                description:
-                  'No feed to delete',
-                duration: 4,
-                icon: () => h(ExclamationOutlined, { style: 'color: red' }),
-              });
-              }
-            }
-          }
-        };
-        xmlhttp.send(JSON.stringify(param))
+      searchProduct(){
+          this.getProductLink()
       },
+      addProduct: function () {
+            var self = this
+            this.isLoadingTagProduct = false;
+            axios.post('/tag_product', {
+                jsonrpc: "2.0",
+                params: {
+
+                    products: this.selected,
+                    post_id: this.media_id
+                }
+            }).then(function (response) {
+                var data = response.data.result
+                console.log(data)
+                if (data.code === 0) {
+                    //TODO self.post.products = data.products cap nhat lai product da dc select o cai modal ngoai
+                    var shop_url_storage_selected = sessionStorage.getItem("selected#"+self.media_id);
+                    if(shop_url_storage_selected !== null){
+                       self.$emit('watch_list_product',self.selected)
+                       sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.selected));
+                        let index_item = 0
+                        for (let i = 0; i < self.instagram_data.media_url.length; i++) {
+                          if(self.instagram_data.media_url[i].media_id === self.media_id){
+                             index_item =i
+                             break
+                           }
+                        }
+                         self.instagram_data.media_url[index_item].num_of_tagged_product =  self.selected.length;
+                         self.$emit('update_instagram_data',self.instagram_data)
+                    }
+                    self.$emit('closeTagProduct')
+                    notification.open({
+                    message: 'Product(s) tagged',
+                    description:
+                      '',
+                    duration: 4,
+                     icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+                  });
+                } else if (data.code === -1) {
+
+                    notification.open({
+                    message: data.error,
+                    description:
+                      '',
+                    duration: 4,
+                     icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+                  });
+                }
+                // self.isLoadingTagProduct = false;
+                self.modalProductSelect = false;
+            }).catch(function (error) {
+                // self.isLoadingTagProduct = false;
+                self.modalProductSelect = false;
+                notification.open({
+                    message: error,
+                    description:
+                      '',
+                    duration: 4,
+                     icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+                  });
+                console.log(error);
+            });
+        },
+      // saveTagProduct(){
+      //   console.log(this.selected_product)
+      //   var self = this
+      //   var xmlhttp = new XMLHttpRequest();
+      //   let queryString = window.location.search
+      //   let urlParams = new URLSearchParams(queryString)
+      //   this.shopify_url = urlParams.get('shop_url')
+      //   xmlhttp.open("POST", "https://odoo.website/set_tag_product");
+      //   xmlhttp.setRequestHeader("Content-Type", "application/json");
+      //   let param = {
+      //     shopify_url: urlParams.get('shop_url'),
+      //     media_id : this.media_id,
+      //     selected_product:this.selected
+      //   }
+      //   xmlhttp.onreadystatechange = function () {
+      //     if (xmlhttp.readyState === 4) {
+      //       if (xmlhttp.status === 200) {
+      //         console.log((JSON.parse(xmlhttp.responseText).result))
+      //         if(JSON.parse(xmlhttp.responseText).result.includes("200")){
+      //           //check xem trong session ds selected cua thang media_id chua co roi thi update
+      //           var shop_url_storage_selected = sessionStorage.getItem("selected#"+self.media_id);
+      //           if(shop_url_storage_selected !== null){
+      //              self.$emit('watch_list_product',self.selected)
+      //              sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.selected));
+      //               let index_item = 0
+      //               for (let i = 0; i < self.instagram_data.media_url.length; i++) {
+      //                 if(self.instagram_data.media_url[i].media_id === self.media_id){
+      //                    index_item =i
+      //                   break
+      //                  }
+      //               }
+      //                self.instagram_data.media_url[index_item].num_of_tagged_product =  self.selected.length;
+      //                self.$emit('update_instagram_data',self.instagram_data)
+      //           }
+      //           self.$emit('closeTagProduct')
+      //            this.modalProductSelect = false
+      //           notification.open({
+      //           message: 'Notification !!',
+      //           description:
+      //             'No feed to delete',
+      //           duration: 4,
+      //           icon: () => h(ExclamationOutlined, { style: 'color: red' }),
+      //         });
+      //         }
+      //       }
+      //     }
+      //   };
+      //   xmlhttp.send(JSON.stringify(param))
+      // },
         getProductLink: _.debounce(
             function () {
-                this.modalProductSelect = this.modalProductSelectApp
-                var shop_url_storage_product_list = sessionStorage.getItem("product_data");
+                var self = this
+                 this.is_loading_data = true
+                var search_query_product = this.search_query_product
+                if (!this.search_query_product) {
+                    search_query_product = ' '
+                }
+                var shop_url_storage_product_list =JSON.parse(sessionStorage.getItem("product_data"));
                 var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
 
                 if(shop_url_storage_selected !== "undefined"){
                     this.selected =JSON.parse(shop_url_storage_selected)
                 }
                 if(shop_url_storage_product_list !== null ){
-                    this.product_data =JSON.parse(shop_url_storage_product_list)
+                    this.product_data =shop_url_storage_product_list
                     this.is_loading_data = false
                 }
                 else{
                     axios.post('/products_search', {
                         jsonrpc: "2.0",
                         params: {
-
+                            query: search_query_product,
                             limit: 20,
                         }
                     }).then(function (response) {
                         var data = response.data.result
                         if (data.code === 0) {
                             self.product_data = data.product_options
+                           sessionStorage.setItem("product_data",JSON.stringify(data.product_options));
                         } else if (data.code === -1) {
                             notification.open({
                                 message: data.error,

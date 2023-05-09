@@ -136,9 +136,10 @@ class ShopifyMint(http.Controller):
                 # data_shopify = shopify.Product.find()
                 client = shopify.GraphQL()
                 shop = shopify.Shop.current()
-                currency = shop.currency
-                query ='{products(first: %d query: "status:ACTIVE") {edges {node {id title handle totalVariants onlineStorePreviewUrl status priceRangeV2 { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } } images(first: 1) {edges { node {originalSrc}}}}}}}' % (
-                    limit)
+
+                search_query = kw['query']
+                query = '{products(first: %d, query: "title:%s* AND status:ACTIVE") {edges {node {id title handle totalVariants onlineStorePreviewUrl status priceRangeV2 { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } } images(first: 1) {edges { node {originalSrc}}}}}}}' % (
+                    limit, search_query)
                 # query = """
                 # {
                 #             products(first: 20) {
@@ -258,7 +259,7 @@ class ShopifyMint(http.Controller):
     @http.route('/get_product_list', type='json', auth='none', cors='*', csrf=False, save_session=False)
     def get_product_list(self):
 
-        media_exist = request.env['post.global'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
+        media_exist = request.env['post.private'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
                                                               limit=1)
         list_product = media_exist.get_list_product()
         list_comment = media_exist.get_list_comment()
@@ -269,17 +270,85 @@ class ShopifyMint(http.Controller):
         }
         return json.dumps(data)
 
+    @http.route('/tag_product', methods=['POST'], type='json', auth='user')
+    def tag_product(self, **kw):
+        try:
+            print(kw)
+            current_user = request.env.user.id
+            shopify_app_exist = request.env['shopify.mint'].sudo().search(
+                ['&', ('user', '=', current_user), ('is_delete', '=', False)], limit=1)
+            if shopify_app_exist:
+                hotspot_private = request.env['hotspot.private'].sudo()
+                if 'products' in kw:
+                    products = kw['products']
+                    product_ids = []
+                    for product in products:
+                        product_ids.append(product['id'])
+                    if kw.get('post_id'):
+                        post_id = kw['post_id']
+                        hotspots = hotspot_private.search([('post', '=', post_id)])
+                        remain_hotspot_ids = []
+                        for hotspot in hotspots:
+                            if hotspot.shopify_product_id not in product_ids:
+                                hotspot.status = False
+                            else:
+                                hotspot.status = True
+                                remain_hotspot_ids.append(hotspot.shopify_product_id)
+                        for item in products:
+                            if item['id'] not in remain_hotspot_ids:
+                                print(item)
+                                hotspot_private.create({
+                                    'name': item['name'],
+                                    'admin': current_user,
+                                    'post': post_id,
+                                    'shopify_product_id': item['id'],
+                                    'shopify_product_handle': item['handle'],
+                                    'shopify_product_img_src': item['img_src'],
+                                    # 'shopify_product_variant_num': item['variant_num'],
+                                    'shopify_product_product_url': item['product_url'],
+                                    'shopify_product_price_range': item['price_range'],
+                                    'status': True,
+                                })
+                        return {
+                            'code': 0,
+                            'products': products
+                        }
+                    else:
+                        return {
+                            'code': -1,
+                            'error': 'Post ID not found.'
+                        }
+                else:
+                    return {
+                        'code': -1,
+                        'error': 'Product list not found.'
+                    }
+            else:
+                return {
+                    'code': -1,
+                    'error': 'Shop not found.'
+                }
+        except Exception as e:
+            _logger.error(e)
+            return {
+                'code': -1,
+                'error': 'Something went wrong. Please contact the customer support'
+            }
+
+
+
+
     @http.route('/set_tag_product', type='json', auth='user', cors='*', csrf=False, save_session=False)
     def set_tag_product(self, **kwargs):
         print(kwargs)
         list_product = []
         list_product_id = []
         if request.jsonrequest:
-            media_exist = request.env['post.global'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
+            media_exist = request.env['post.private'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
                                                                   limit=1)
-            if len(media_exist.selected_product) <= len(request.jsonrequest['selected_product']):
+            if len(media_exist.hotspot) <= len(request.jsonrequest['selected_product']):
                 for item in request.jsonrequest['selected_product']:
-                    product = request.env['product.data'].sudo().search([('product_id', '=', item.get('id'))], limit=1)
+                    product = request.env['hotspot.private'].sudo().search([('product_id', '=', item.get('id'))], limit=1)
                     if product:
                         list_product.append(product.id)
                 for i in list_product:
@@ -294,7 +363,7 @@ class ShopifyMint(http.Controller):
 
                 for item in request.jsonrequest['selected_product']:
                     list_product_id_arr.append(item.get('id'))
-                    product = request.env['product.data'].sudo().search([('product_id', '=', item.get('id'))],
+                    product = request.env['hotspot.private'].sudo().search([('product_id', '=', item.get('id'))],
                                                                         limit=1)
                     if product:
                         list_product.append(product.id)
@@ -302,7 +371,7 @@ class ShopifyMint(http.Controller):
                 for item in media_exist.selected_product:
                     if item.product_id not in list_product_id_arr:
 
-                        product = request.env['product.data'].sudo().search([('product_id', '=', item.product_id)],
+                        product = request.env['hotspot.private'].sudo().search([('product_id', '=', item.product_id)],
                                                                             limit=1)
                         if product:
                             # list_product.append(product.id)

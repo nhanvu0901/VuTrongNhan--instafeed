@@ -14,7 +14,7 @@ class Widget(models.Model):
     # instagram_user = fields.Many2one('instagram.user', string='Instagram Data', ondelete='cascade')
     widget_config = fields.Many2one('widget.config')
     hashed_id = fields.Char(index=True)
-    media_data = fields.Many2many('media.data', ondelete='cascade')
+    media_data = fields.Many2many('media.source', ondelete='cascade')
     # id_widget = fields.Char(string="Widget ID")
     is_display = fields.Boolean(string="Is Displayed")
 
@@ -22,7 +22,7 @@ class Widget(models.Model):
 
 
     def create_action(self):
-        list_media_id = request.env['media.data'].get_list_media_id()
+        list_media_id = request.env['media.source'].get_list_media_id()
         # widget_id = convertDate.datetime.now().strftime('%Y%m%d%H%M%S%f')
         widget_exist = self.sudo().create({
             # "instagram_user": instagram_user_exist.id,

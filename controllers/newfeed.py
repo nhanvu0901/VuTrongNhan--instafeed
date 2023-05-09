@@ -120,7 +120,7 @@ class NewFeed(http.Controller):
                 limit=1)
 
 
-            list_widget_id = request.env['media.data'].get_list_media_id()
+            list_widget_id = request.env['media.source'].get_list_media_id()
 
 
 

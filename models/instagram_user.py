@@ -46,7 +46,7 @@ class Instagram_User(models.Model):
         try:
             current_user = request.env.user.id
             if self.admin.id == current_user:
-                list_media = request.env['media.data'].get_list_media()
+                list_media = request.env['media.source'].get_list_media()
 
                 widget_exist = self.env['widget.data'].get_active_widget()
 
@@ -94,7 +94,7 @@ class Instagram_User(models.Model):
                 "followers": json.loads(response_instagram_data.text).get('followers_count')
             })
             for data in json.loads(response_instagram_data.text).get('media').get('data'):
-                media_exist = request.env['post.global'].sudo().search(
+                media_exist = request.env['post.private'].sudo().search(
                     [('media_id', '=', data.get('id'))], limit=1)
                 if data.get('comments'):
                     # unlink the all old comment
@@ -129,7 +129,7 @@ class Instagram_User(models.Model):
                     list_media_url = []
                     for data in data_media.get('data'):
                         response_url = instagram.get_details_instagram_media(data, self.ins_access_token)
-                        post = request.env['post.global'].sudo().search(
+                        post = request.env['post.private'].sudo().search(
                             [('media_id', '=', json.loads(response_url.text).get('id'))], limit=1)
                         self.save_media(post, response_url)
 
@@ -175,7 +175,7 @@ class Instagram_User(models.Model):
                 })
 
         else:
-            media_exist = request.env['post.global'].create({
+            media_exist = request.env['post.private'].create({
                 "media_id": json.loads(response_url.text).get('id'),
                 "type": json.loads(response_url.text).get('media_type'),
                 "caption": json.loads(response_url.text).get('caption'),

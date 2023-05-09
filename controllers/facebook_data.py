@@ -39,7 +39,7 @@ class Facebook_data(http.Controller):
                         "followers": json.loads(response_instagram_data.text).get('followers_count')
                     })
                     for data in json.loads(response_instagram_data.text).get('media').get('data'):
-                        media_exist = request.env['post.global'].sudo().search(
+                        media_exist = request.env['post.private'].sudo().search(
                             [('media_id', '=', data.get('id'))], limit=1)
 
                         if data.get('comments'):

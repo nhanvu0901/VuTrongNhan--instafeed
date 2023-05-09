@@ -6,20 +6,27 @@ from odoo.tools.safe_eval import datetime
 
 
 class Product(models.Model):
-    _name = 'product.data'
-    _description = 'Prodcut Data'
+    _name = 'hotspot.private'
+    _description = 'Hotspot'
 
-    product_id = fields.Char(string="Product ID")
-    product_img = fields.Char(string="Product image")
-    product_name = fields.Char(string="Prodcut name")
-    media_select = fields.Many2many('media.data',string="Media")
-    shopify_shop = fields.Many2one('shopify.mint','Shopify Shop' ,ondelete='cascade')
+    name = fields.Char(default='')
+    shopify_product_id = fields.Char(default='')
+    shopify_product_handle = fields.Char(default='')
+    shopify_product_img_src = fields.Char(default='')
+    # shopify_product_variant_num = fields.Integer(default=0)
+    shopify_product_product_url = fields.Char(default='')
+    shopify_product_price_range = fields.Char(default='')
+
+
+    admin = fields.Many2one('res.users')
+    post = fields.Many2one('post.private')
+    status = fields.Boolean(default=False)
 
     def get_product(self):
         product = {
-            "id": self.product_id,
-            "image_src": self.product_img,
-            "name": self.product_name,
+            "id": self.shopify_product_id,
+            "image_src": self.shopify_product_img_src,
+            "name": self.name,
         }
         return product
 

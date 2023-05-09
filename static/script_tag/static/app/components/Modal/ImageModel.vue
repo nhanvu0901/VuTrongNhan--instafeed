@@ -161,7 +161,7 @@ export default {
       }
       let media_active = this.instagram_data.media_url.find((item) => item.media_id === this.media_id)
       console.log(media_active)
-      this.list_tagged_product = media_active.selected_product
+      this.list_tagged_product = media_active.hotspot
       this.list_comment = media_active.list_comment
 
 
@@ -206,7 +206,7 @@ export default {
       }
       let media_active = this.instagram_data.media_url.find((item) => item.media_id === newone)
       console.log(media_active)
-      this.list_tagged_product = media_active.selected_product
+      this.list_tagged_product = media_active.hotspot
     }
 
     // whenever question changes, this function will run

@@ -4,7 +4,7 @@
 
     <record model="ir.ui.view" id="media_shopify_mint">
       <field name="name">media shopify mint</field>
-      <field name="model">media.data</field>
+      <field name="model">media.source</field>
       <field name="arch" type="xml">
         <tree>
             <field name="name"/>
@@ -20,7 +20,7 @@
 
     <record model="ir.ui.view" id="post_shopify_mint">
       <field name="name">post media shopify mint</field>
-      <field name="model">post.global</field>
+      <field name="model">post.private</field>
       <field name="arch" type="xml">
         <tree>
 
@@ -38,13 +38,13 @@
 
       <record model="ir.actions.act_window" id="media_post_action_window">
         <field name="name">Media Post</field>
-        <field name="res_model">post.global</field>
+        <field name="res_model">post.private</field>
         <field name="view_mode">tree,form</field>
     </record>
 
     <record model="ir.actions.act_window" id="media_user_shopify_mint_action">
       <field name="name">media action</field>
-      <field name="res_model">media.data</field>
+      <field name="res_model">media.source</field>
       <field name="view_mode">tree,form</field>
     </record>
 
