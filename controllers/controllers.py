@@ -19,91 +19,241 @@ import traceback
 
 _logger = logging.getLogger(__name__)
 from ..static.instagram_auth.InstagramAPI import  InstagramAPI
+_logger = logging.getLogger(__name__)
 
+CURRENCY_SYMBOLS_LIST = {
+    "AFN": "؋",
+    "ARS": "$",
+    "AWG": "ƒ",
+    "AUD": "$",
+    "AZN": "₼",
+    "BSD": "$",
+    "BBD": "$",
+    "BYN": "Br",
+    "BZD": "BZ$",
+    "BMD": "$",
+    "BOB": "$b",
+    "BGN": "лв",
+    "BRL": "R$",
+    "BND": "$",
+    "KHR": "៛",
+    "CAD": "$",
+    "KYD": "$",
+    "CLP": "$",
+    "CNY": "¥",
+    "COP": "$",
+    "CRC": "₡",
+    "HRK": "kn",
+    "CUP": "₱",
+    "CZK": "Kč",
+    "DKK": "kr",
+    "DOP": "RD$",
+    "XCD": "$",
+    "EGP": "£",
+    "SVC": "$",
+    "EUR": "€",
+    "FKP": "£",
+    "FJD": "$",
+    "GHS": "¢",
+    "GIP": "£",
+    "GTQ": "Q",
+    "GGP": "£",
+    "GYD": "$",
+    "HNL": "L",
+    "HKD": "$",
+    "HUF": "Ft",
+    "IDR": "Rp",
+    "IRR": "﷼",
+    "IMP": "£",
+    "ILS": "₪",
+    "JMD": "J$",
+    "JPY": "¥",
+    "JEP": "£",
+    "KZT": "лв",
+    "KPW": "₩",
+    "KRW": "₩",
+    "KGS": "лв",
+    "LAK": "₭",
+    "LBP": "£",
+    "LRD": "$",
+    "MKD": "ден",
+    "MYR": "RM",
+    "MUR": "₨",
+    "MXN": "$",
+    "NAD": "$",
+    "NPR": "₨",
+    "ANG": "ƒ",
+    "NZD": "$",
+    "NIO": "C$",
+    "NGN": "₦",
+    "NOK": "kr",
+    "OMR": "﷼",
+    "PKR": "₨",
+    "PHP": "₱",
+    "PLN": "zł",
+    "QAR": "﷼",
+    "RUB": "₽",
+    "SHP": "£",
+    "SAR": "﷼",
+    "SCR": "₨",
+    "SGD": "$",
+    "SBD": "$",
+    "SOS": "S",
+    "ZAR": "R",
+    "LKR": "₨",
+    "SEK": "kr",
+    "SRD": "$",
+    "SYP": "£",
+    "TWD": "NT$",
+    "THB": "฿",
+    "TTD": "TT$",
+    "TRY": "₺",
+    "TVD": "$",
+    "UAH": "₴",
+    "GBP": "£",
+    "USD": "$",
+    "UYU": "$U",
+    "UZS": "лв",
+    "VEF": "Bs",
+    "VND": "₫",
+    "YER": "﷼",
+    "ZWD": "Z$"
+}
 class ShopifyMint(http.Controller):
 
-
-
-    @http.route('/get_product', type='json', auth='user', cors='*', csrf=False, save_session=False)
-    def get_product(self, **kwargs):
+    @http.route('/products_search', type='json', auth='user', cors='*', csrf=False, save_session=False)
+    def products_search(self, **kw):
         if request.jsonrequest:
 
             # if(request.jsonrequest['media_id'])
             current_user = request.env.user.id
-            media_exist = request.env['media.data'].sudo().search([('admin', '=', current_user)],
-                                                                  limit=1)
-
-
-            shop_url = request.jsonrequest['shopify_url']
-            shopify_exist = request.env['shopify.mint'].sudo().search([('shop_url', '=', shop_url)], limit=1)
+            shopify_exist = request.env['shopify.mint'].sudo().search([('user', '=', current_user)], limit=1)
             shopify_exist.initShopifySession()
-            # data_shopify = shopify.Product.find()
-            client = shopify.GraphQL()
-            shop = shopify.Shop.current()
-            currency = shop.currency
-
-            query = """
-            {
-                        products(first: 20) {
-                            edges {
-                                node {
-                                    id
-                                    title
-                                     variants(first: 10) {
-                                      edges {
-                    			node {
-                    			   price
-                    			   inventoryQuantity
-                                    	   compareAtPrice
-
-
-                    			}
-                    		    }
-                                     }
-                                     images(first:1){
-            		            edges{
-            		                node{ url }
-            		            }
-            		        }
-                                }
-                            }
-                        }    
-                    } 
-            """
-            result = client.execute(query)
-
-            list_product = []
-
-            products = json.loads(result)['data']['products']['edges']
-            for product in products:
-                item = {
-                    "product_id": product['node'].get('id').split('/')[len(product['node'].get('id').split('/')) - 1],
-                    "product_img": product['node'].get("images").get('edges')[0].get('node').get('url') if len(product['node'].get("images").get('edges')) !=0 else '',
-                    "product_name": product['node'].get("title"),
-                    # "product_price": product['node'].get('variants').get("edges")[0].get("node").get("price"),
-                    # "product_compare_at_price": product['node'].get('variants').get("edges")[0].get("node").get(
-                    #     "compareAtPrice"),
-                    # "quantity": product['node'].get('variants').get("edges")[0].get("node").get("inventoryQuantity"),
-                    # "currency": currency
+            limit = 10
+            if shopify_exist:
+                if 'limit' in kw:
+                    limit = kw['limit']
+                # data_shopify = shopify.Product.find()
+                client = shopify.GraphQL()
+                shop = shopify.Shop.current()
+                currency = shop.currency
+                query ='{products(first: %d query: "status:ACTIVE") {edges {node {id title handle totalVariants onlineStorePreviewUrl status priceRangeV2 { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } } images(first: 1) {edges { node {originalSrc}}}}}}}' % (
+                    limit)
+                # query = """
+                # {
+                #             products(first: 20) {
+                #                 edges {
+                #                     node {
+                #                         id
+                #                         title
+                #                          variants(first: 10) {
+                #                           edges {
+                #         			node {
+                #         			   price
+                #         			   inventoryQuantity
+                #                         	   compareAtPrice
+                #
+                #
+                #         			}
+                #         		    }
+                #                          }
+                #                          images(first:1){
+                # 		            edges{
+                # 		                node{ url }
+                # 		            }
+                # 		        }
+                #                     }
+                #                 }
+                #             }
+                #         }
+                # """
+                query_result = client.execute(query)
+                query_result = json.loads(query_result)
+                product_options = []
+                if query_result['data']['products']['edges']:
+                    for product in query_result['data']['products']['edges']:
+                        data = product['node']
+                        if not data['images']['edges']:
+                            data['images']['edges'].append(
+                                {'node': {
+                                    'originalSrc': 'https://apps.nestscale.com/omnichat/static/img/no_image.png'}})
+                        product_options.append({
+                            'product_id': data['id'],
+                            'product_name': data['title'],
+                            'handle': data['handle'],
+                            'product_img': data['images']['edges'][0]['node']['originalSrc'],
+                            'variant_num': data['totalVariants'],
+                            'product_url': data['onlineStorePreviewUrl'],
+                            'price_range': self.get_price_range(
+                                data['priceRangeV2']['minVariantPrice']['amount'],
+                                data['priceRangeV2']['minVariantPrice']['currencyCode'],
+                                data['priceRangeV2']['maxVariantPrice']['amount'],
+                                data['priceRangeV2']['maxVariantPrice']['currencyCode'])
+                        })
+                    shopify.ShopifyResource.clear_session()
+                return {
+                    'code': 0,
+                    'product_options': product_options,
                 }
-                product_exist = request.env['product.data'].sudo().search([('product_id', '=',
-                                                                            product['node'].get('id').split('/')[len(
-                                                                                product['node'].get('id').split(
-                                                                                    '/')) - 1])], limit=1)
-                if product_exist:
-                    product_exist.write(item)
-                else:
-                    request.env['product.data'].sudo().create(item)
-                list_product.append(item)
-            widget_exist = request.env['widget.data'].sudo().search(
-                ['&', ('admin', '=', current_user),
-                 ('is_display', '=', True)])
-            get_product = {
-                "list_product": list_product,
-                "product_list": widget_exist.media_data.get_post_product_tag() if widget_exist.media_data.selected_posts_global.selected_product else ''
-            }
+            else:
+                return {
+                    'code': -1,
+                    'error': 'Store not found.'
+                }
 
-            return json.dumps(get_product)
+    def get_price_range(self, min_price_amount, min_price_currency_code, max_price_amount,
+                        max_price_currency_code):
+        if float(min_price_amount) < float(max_price_amount):
+            return self.format_currency(min_price_amount,
+                                        min_price_currency_code) + ' - ' + self.format_currency(
+                max_price_amount, max_price_currency_code)
+        elif float(min_price_amount) == float(max_price_amount):
+            return self.format_currency(min_price_amount, min_price_currency_code)
+        else:
+            return ''
+
+    def format_currency(self, amount, currency_code):
+        if CURRENCY_SYMBOLS_LIST.get(currency_code):
+            return CURRENCY_SYMBOLS_LIST.get(currency_code) + amount
+        else:
+            return amount + ' ' + currency_code
+
+
+
+
+
+
+
+            # products = json.loads(query_result)['data']['products']['edges']
+            # for product in products:
+            #     item = {
+            #         "product_id": product['node'].get('id').split('/')[len(product['node'].get('id').split('/')) - 1],
+            #         "product_img": product['node'].get("images").get('edges')[0].get('node').get('url') if len(product['node'].get("images").get('edges')) !=0 else '',
+            #         "product_name": product['node'].get("title"),
+            #         # "product_price": product['node'].get('variants').get("edges")[0].get("node").get("price"),
+            #         # "product_compare_at_price": product['node'].get('variants').get("edges")[0].get("node").get(
+            #         #     "compareAtPrice"),
+            #         # "quantity": product['node'].get('variants').get("edges")[0].get("node").get("inventoryQuantity"),
+            #         # "currency": currency
+            #     }
+            #     product_exist = request.env['product.data'].sudo().search([('product_id', '=',
+            #                                                                 product['node'].get('id').split('/')[len(
+            #                                                                     product['node'].get('id').split(
+            #                                                                         '/')) - 1])], limit=1)
+            #     if product_exist:
+            #         product_exist.write(item)
+            #     else:
+            #         request.env['product.data'].sudo().create(item)
+            #     list_product.append(item)
+            # widget_exist = request.env['widget.data'].sudo().search(
+            #     ['&', ('admin', '=', current_user),
+            #      ('is_display', '=', True)])
+            # get_product = {
+            #     "list_product": list_product,
+            #     "product_list": widget_exist.media_data.get_post_product_tag() if widget_exist.media_data.selected_posts_global.selected_product else ''
+            # }
+
+
 
     @http.route('/get_product_list', type='json', auth='none', cors='*', csrf=False, save_session=False)
     def get_product_list(self):

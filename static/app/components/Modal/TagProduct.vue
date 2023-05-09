@@ -73,8 +73,10 @@ padding: 1.5rem 1rem;">
 
 <script>
 import { notification } from 'ant-design-vue';
-import { SmileOutlined } from '@ant-design/icons-vue';
+import {ExclamationOutlined, SmileOutlined} from '@ant-design/icons-vue';
 import { createVNode, defineComponent, h } from 'vue';
+import _ from 'lodash';
+import axios from "axios";
 export default {
   name: "TagProduct",
   data() {
@@ -143,64 +145,111 @@ export default {
                 self.$emit('closeTagProduct')
                  this.modalProductSelect = false
                 notification.open({
-                message: 'Notification',
+                message: 'Notification !!',
                 description:
-                  'Tag product successfully!!',
+                  'No feed to delete',
                 duration: 4,
-               icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+                icon: () => h(ExclamationOutlined, { style: 'color: red' }),
               });
               }
             }
           }
         };
         xmlhttp.send(JSON.stringify(param))
-      }
+      },
+        getProductLink: _.debounce(
+            function () {
+                this.modalProductSelect = this.modalProductSelectApp
+                var shop_url_storage_product_list = sessionStorage.getItem("product_data");
+                var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+
+                if(shop_url_storage_selected !== "undefined"){
+                    this.selected =JSON.parse(shop_url_storage_selected)
+                }
+                if(shop_url_storage_product_list !== null ){
+                    this.product_data =JSON.parse(shop_url_storage_product_list)
+                    this.is_loading_data = false
+                }
+                else{
+                    axios.post('/products_search', {
+                        jsonrpc: "2.0",
+                        params: {
+
+                            limit: 20,
+                        }
+                    }).then(function (response) {
+                        var data = response.data.result
+                        if (data.code === 0) {
+                            self.product_data = data.product_options
+                        } else if (data.code === -1) {
+                            notification.open({
+                                message: data.error,
+                                description:
+                                  'No feed to delete',
+                                duration: 4,
+                                icon: () => h(ExclamationOutlined, { style: 'color: red' }),
+                              });
+                        }
+                        self.is_loading_data = false;
+                    }).catch(function (error) {
+                        self.is_loading_data = false;
+                        notification.open({
+                            message:  error.message,
+                            description:
+                              'No feed to delete',
+                            duration: 4,
+                            icon: () => h(ExclamationOutlined, { style: 'color: red' }),
+                          });
+
+                    });
+                }
+
+            }, 500
+        ),
     },
     mounted() {
      this.modalProductSelect = this.modalProductSelectApp
-     var shop_url_storage_product_list = sessionStorage.getItem("product_data");
-     var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
-
-      if(shop_url_storage_selected !== "undefined"){
-        this.selected =JSON.parse(shop_url_storage_selected)
-      }
-      if(shop_url_storage_product_list !== null ){
-        this.product_data =JSON.parse(shop_url_storage_product_list)
-        this.is_loading_data = false
-     }
-     else {
-           var self = this
-          var xmlhttp = new XMLHttpRequest();
-          let queryString = window.location.search
-          let urlParams = new URLSearchParams(queryString)
-          this.shopify_url = urlParams.get('shop_url')
-          xmlhttp.open("POST", "https://odoo.website/get_product");
-          xmlhttp.setRequestHeader("Content-Type", "application/json");
-          let param = {
-            shopify_url: urlParams.get('shop_url'),
-             media_id : this.media_id,
-          }
-          xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState === 4) {
-              if (xmlhttp.status === 200) {
-                self.product_data = JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']
-                if(JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'] !== null || JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'].length !== 0 ){
-                  // self.selected = JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list']
-                  //luu lai tren session
-                  sessionStorage.setItem("product_data",JSON.stringify(JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']));
-                  self.is_loading_data = false
-                }
-              }
-            }
-          };
-          xmlhttp.send(JSON.stringify(param))
-     }
+     // var shop_url_storage_product_list = sessionStorage.getItem("product_data");
+     // var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+     //
+     //  if(shop_url_storage_selected !== "undefined"){
+     //    this.selected =JSON.parse(shop_url_storage_selected)
+     //  }
+     //  if(shop_url_storage_product_list !== null ){
+     //    this.product_data =JSON.parse(shop_url_storage_product_list)
+     //    this.is_loading_data = false
+     // }
+     // else {
+     //       var self = this
+     //      var xmlhttp = new XMLHttpRequest();
+     //
+     //      xmlhttp.open("POST", "https://odoo.website/get_product");
+     //      xmlhttp.setRequestHeader("Content-Type", "application/json");
+     //      let param = {
+     //
+     //         media_id : this.media_id,
+     //      }
+     //      xmlhttp.onreadystatechange = function () {
+     //        if (xmlhttp.readyState === 4) {
+     //          if (xmlhttp.status === 200) {
+     //            self.product_data = JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']
+     //            if(JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'] !== null || JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list'].length !== 0 ){
+     //              // self.selected = JSON.parse(JSON.parse(xmlhttp.responseText).result)['product_list']
+     //              //luu lai tren session
+     //              sessionStorage.setItem("product_data",JSON.stringify(JSON.parse(JSON.parse(xmlhttp.responseText).result)['list_product']));
+     //              self.is_loading_data = false
+     //            }
+     //          }
+     //        }
+     //      };
+     //      xmlhttp.send(JSON.stringify(param))
+     // }
     },
     watch: {
 
         modalProductSelect: function (newone) {
             if (newone === true) {
-                console.log(true)
+                this.getProductLink()
 
             } else {
               console.log(false)
