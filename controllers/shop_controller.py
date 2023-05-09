@@ -34,9 +34,9 @@ class Frontend(http.Controller):
                         list_product = []
                         for product in item.hotspot:
                             product_data = {
-                                "product_id": product.product_id,
-                                "product_img": product.product_img,
-                                "product_name": product.product_name,
+                                "product_id": product.shopify_product_id,
+                                "product_img": product.shopify_product_img_src,
+                                "product_name": product.name,
                             }
                             list_product.append(product_data)
                         list_comment = item.get_list_comment()

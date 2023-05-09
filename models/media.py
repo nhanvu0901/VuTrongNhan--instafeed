@@ -66,9 +66,9 @@ class Media(models.Model):
                 list_product = []
                 for product in media_url.hotspot:
                     product_data = {
-                        "id": product.product_id,
-                        "image_src": product.product_img,
-                        "name": product.product_name,
+                        "id": product.shopify_product_id,
+                        "image_src": product.shopify_product_img_src,
+                        "name": product.name,
                     }
                     list_product.append(product_data)
                 media_data = {
@@ -96,9 +96,9 @@ class Media(models.Model):
         if self.selected_posts_global:
             for item in self.selected_posts_global.hotspot:
                 product = {
-                    "id": item.product_id,
-                    "image_src": item.product_img,
-                    "name": item.product_name
+                    "id": item.shopify_product_id,
+                    "image_src": item.shopify_product_img_src,
+                    "name": item.name
                 }
                 product_list.append(product)
 

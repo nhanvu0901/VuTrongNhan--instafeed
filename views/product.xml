@@ -11,7 +11,7 @@
             <field name="shopify_product_id"/>
             <field name="shopify_product_handle"/>
             <field name="shopify_product_img_src"/>
-<!--            <field name="shopify_product_variant_num"/>-->
+            <field name="shopify_product_variant_num"/>
 
             <field name="shopify_product_product_url"/>
             <field name="shopify_product_price_range"/>

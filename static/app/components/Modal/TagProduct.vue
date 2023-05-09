@@ -36,7 +36,7 @@ padding-bottom: 20px; ">
 align-items: center;">
                           <td>
                             <input style="width: 1.2rem;
-height: 1.2rem;" type="checkbox" :id="product.product_id"  v-model="selected"  :value="{id:product.product_id,img_src:product.product_img,name:product.product_name,handle:product.handle,variant_num:product.variant_num,product_url:product.product_url,price_range:product.price_range}"/>
+height: 1.2rem;" type="checkbox" :id="product.product_id"  v-model="tempSelectedProductIds" @change="tagProduct" :value="product.product_id"/>
                           </td>
                           <td><img :src="product.product_img" alt="" style="width: 3rem;height: 3rem;"></td>
                           <td>{{ product.product_name }}</td>
@@ -55,7 +55,7 @@ display: flex;
 justify-content: space-between;
 padding: 1.5rem 1rem;">
             <div class="selected-num">
-               {{this.selected.length}} products selected
+               {{this.tempSelectedProductIds.length}} products selected
             </div>
             <div class="button-container">
                  <a-button value="large" style="margin-right: 1rem;" @click="closeTagProduct();modalProductSelect=false">Cancel</a-button>
@@ -84,19 +84,15 @@ export default {
       product_data: [],
       is_loading_data: false,
       search_query_product: null,
-      selected: [],
-      modalProductSelect:false
+
+      modalProductSelect:false,
+       tempSelectedProductIds: [],
+            tempSelectedProduct: [],
     }
   },
 
   computed: {
-    filteredItems() {
-      if(this.product_data !== null || this.product_data !== ''){
-        return this.product_data.filter(item => {
-        return item.product_name.toLowerCase().indexOf(this.search.toLowerCase()) > -1
-      })
-      }
-    },
+
     },
     props: {
      media_id:String,
@@ -111,14 +107,26 @@ export default {
       searchProduct(){
           this.getProductLink()
       },
+      tagProduct: function (event) {//lay thong tin thang dc tag push vao array
+            console.log(event)
+            var product_id = event.target.value
+            if (event.target.checked) {
+                if (this.product_data.filter(i => i.product_id === product_id).length > 0) {
+                    var product = this.product_data.filter(i => i.product_id === product_id)[0]
+                    this.tempSelectedProduct.push(product)
+                }
+            } else {
+                this.tempSelectedProduct = this.tempSelectedProduct.filter(i => i.id !== product_id)
+            }
+        },
       addProduct: function () {
             var self = this
-            this.isLoadingTagProduct = false;
+
             axios.post('/tag_product', {
                 jsonrpc: "2.0",
                 params: {
 
-                    products: this.selected,
+                    products: this.tempSelectedProduct,
                     post_id: this.media_id
                 }
             }).then(function (response) {
@@ -224,21 +232,17 @@ export default {
       // },
         getProductLink: _.debounce(
             function () {
-                var self = this
-                 this.is_loading_data = true
-                var search_query_product = this.search_query_product
-                if (!this.search_query_product) {
-                    search_query_product = ' '
-                }
-                var shop_url_storage_product_list =JSON.parse(sessionStorage.getItem("product_data"));
-                var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+                  var self = this
+                   this.is_loading_data = true
+                  var search_query_product = this.search_query_product
+                  if (!this.search_query_product) {
+                      search_query_product = ' '
+                  }
+                  var shop_url_storage_product_list =JSON.parse(sessionStorage.getItem("product_data"));
 
-                if(shop_url_storage_selected !== "undefined"){
-                    this.selected =JSON.parse(shop_url_storage_selected)
-                }
-                if(shop_url_storage_product_list !== null ){
-                    this.product_data =shop_url_storage_product_list
-                    this.is_loading_data = false
+                  if(shop_url_storage_product_list !== null ){
+                      this.product_data =shop_url_storage_product_list
+                      this.is_loading_data = false
                 }
                 else{
                     axios.post('/products_search', {
@@ -280,6 +284,25 @@ export default {
     },
     mounted() {
      this.modalProductSelect = this.modalProductSelectApp
+      var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+
+
+      this.tempSelectedProduct = []
+      this.tempSelectedProductIds = []
+        if(JSON.parse(shop_url_storage_selected).length  !== 0){
+             for (let item of JSON.parse(shop_url_storage_selected)) {
+              this.tempSelectedProductIds.push(item.id)
+              this.tempSelectedProduct.push({
+                  'id': item.id,
+                  'name': item.name,
+                  'handle': item.handle,
+                  'img_src': item.img_src,
+                  'variant_num': item.variant_num,
+                  'product_url': item.product_url
+              })
+          }
+        }
+
      // var shop_url_storage_product_list = sessionStorage.getItem("product_data");
      // var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
      //

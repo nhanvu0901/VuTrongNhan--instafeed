@@ -135,7 +135,7 @@ class ShopifyMint(http.Controller):
                     limit = kw['limit']
                 # data_shopify = shopify.Product.find()
                 client = shopify.GraphQL()
-                shop = shopify.Shop.current()
+
 
                 search_query = kw['query']
                 query = '{products(first: %d, query: "title:%s* AND status:ACTIVE") {edges {node {id title handle totalVariants onlineStorePreviewUrl status priceRangeV2 { minVariantPrice { amount currencyCode } maxVariantPrice { amount currencyCode } } images(first: 1) {edges { node {originalSrc}}}}}}}' % (
@@ -277,16 +277,21 @@ class ShopifyMint(http.Controller):
             current_user = request.env.user.id
             shopify_app_exist = request.env['shopify.mint'].sudo().search(
                 ['&', ('user', '=', current_user), ('is_delete', '=', False)], limit=1)
+
             if shopify_app_exist:
                 hotspot_private = request.env['hotspot.private'].sudo()
                 if 'products' in kw:
                     products = kw['products']
                     product_ids = []
                     for product in products:
-                        product_ids.append(product['id'])
+                        product_ids.append(product['product_id'])
                     if kw.get('post_id'):
+
                         post_id = kw['post_id']
-                        hotspots = hotspot_private.search([('post', '=', post_id)])
+                        media_exist = request.env['post.private'].sudo().search(
+                            [('media_id', '=', post_id)],
+                            limit=1)
+                        hotspots = hotspot_private.search([('post', '=', media_exist.id)])
                         remain_hotspot_ids = []
                         for hotspot in hotspots:
                             if hotspot.shopify_product_id not in product_ids:
@@ -295,16 +300,16 @@ class ShopifyMint(http.Controller):
                                 hotspot.status = True
                                 remain_hotspot_ids.append(hotspot.shopify_product_id)
                         for item in products:
-                            if item['id'] not in remain_hotspot_ids:
+                            if item['product_id'] not in remain_hotspot_ids:
                                 print(item)
                                 hotspot_private.create({
-                                    'name': item['name'],
+                                    'name': item['product_name'],
                                     'admin': current_user,
-                                    'post': post_id,
-                                    'shopify_product_id': item['id'],
+                                    'post': media_exist.id,
+                                    'shopify_product_id': item['product_id'],
                                     'shopify_product_handle': item['handle'],
-                                    'shopify_product_img_src': item['img_src'],
-                                    # 'shopify_product_variant_num': item['variant_num'],
+                                    'shopify_product_img_src': item['product_img'],
+                                     'shopify_product_variant_num': item['variant_num'],
                                     'shopify_product_product_url': item['product_url'],
                                     'shopify_product_price_range': item['price_range'],
                                     'status': True,
@@ -348,7 +353,7 @@ class ShopifyMint(http.Controller):
                                                                   limit=1)
             if len(media_exist.hotspot) <= len(request.jsonrequest['selected_product']):
                 for item in request.jsonrequest['selected_product']:
-                    product = request.env['hotspot.private'].sudo().search([('product_id', '=', item.get('id'))], limit=1)
+                    product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.get('id'))], limit=1)
                     if product:
                         list_product.append(product.id)
                 for i in list_product:
@@ -363,7 +368,7 @@ class ShopifyMint(http.Controller):
 
                 for item in request.jsonrequest['selected_product']:
                     list_product_id_arr.append(item.get('id'))
-                    product = request.env['hotspot.private'].sudo().search([('product_id', '=', item.get('id'))],
+                    product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.get('id'))],
                                                                         limit=1)
                     if product:
                         list_product.append(product.id)
@@ -371,7 +376,7 @@ class ShopifyMint(http.Controller):
                 for item in media_exist.selected_product:
                     if item.product_id not in list_product_id_arr:
 
-                        product = request.env['hotspot.private'].sudo().search([('product_id', '=', item.product_id)],
+                        product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.product_id)],
                                                                             limit=1)
                         if product:
                             # list_product.append(product.id)
