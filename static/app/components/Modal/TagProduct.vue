@@ -116,7 +116,7 @@ export default {
                     this.tempSelectedProduct.push(product)
                 }
             } else {
-                this.tempSelectedProduct = this.tempSelectedProduct.filter(i => i.id !== product_id)
+                this.tempSelectedProduct = this.tempSelectedProduct.filter(i => i.product_id !== product_id)
             }
         },
       addProduct: function () {
@@ -152,7 +152,7 @@ export default {
                     notification.open({
                     message: 'Product(s) tagged',
                     description:
-                      '',
+                      'Successfully!!',
                     duration: 4,
                      icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
                   });
@@ -293,10 +293,10 @@ export default {
              for (let item of JSON.parse(shop_url_storage_selected)) {
               this.tempSelectedProductIds.push(item.id)
               this.tempSelectedProduct.push({
-                  'id': item.id,
-                  'name': item.name,
+                  'product_id': item.id,
+                  'product_name': item.name,
                   'handle': item.handle,
-                  'img_src': item.img_src,
+                  'product_img': item.img_src,
                   'variant_num': item.variant_num,
                   'product_url': item.product_url
               })
