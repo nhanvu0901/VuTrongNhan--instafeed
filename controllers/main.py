@@ -24,7 +24,7 @@ class MainController(http.Controller):
 
     @http.route('/shopify_mint/main', auth='user', type="http", website=True)
     def main(self, **kw):
-        response ={"message":''}
+        response ={"error":''}
         client_id = request.env['ir.config_parameter'].sudo().get_param('shopify_mint.meta_client_id')
         redirect_url = request.env['ir.config_parameter'].sudo().get_param('shopify_mint.meta_redirect_url')
         current_user = request.env.user
@@ -38,16 +38,16 @@ class MainController(http.Controller):
         if current_user and shopify_app_exist:
             if "code" in kw:
                 response = self.update_instagram_user(kw["code"], shop_url)
-                if response.get("message") !='':
-                    data_transfer['flag'] = json.dumps(response.get("message"))
-            if response.get("message")=='':
+                if response.get("error") !='':
+                    data_transfer['flag'] = json.dumps(response.get("error"))
+            if response.get("error")=='':
                 instagram_user_exist = request.env['instagram.user'].sudo().search([
                     ('admin', '=', current_user.id)
                 ], limit=1)
                 data = self.get_instagram_user_data(instagram_user_exist, client_id, shop_url, redirect_url)
                 data_transfer['data'] = json.dumps(data)
         else:
-            data_transfer['flag'] = json.dumps({"message":"Not user"})
+            data_transfer['flag'] = json.dumps({"error":"Not user"})
         return request.render("shopify_mint.shopify_mint_template", data_transfer)
 
 
@@ -122,16 +122,16 @@ class MainController(http.Controller):
 
                         })
                     else:
-                        return {"message":"Instagram user already been used"}
+                        return {"error":"Instagram user already been used"}
                 else:
-                    return {"message":"Shop not exist"}
+                    return {"error":"Shop not exist"}
 
 
 
 
                 # TODO viet nut reload va cronjob
                 instagram_user_exist.update_instagram_media()
-                return {"message":""}
+                return {"error":""}
         else:
             return Response('fail', 404)
 

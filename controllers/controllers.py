@@ -179,10 +179,10 @@ class ShopifyMint(http.Controller):
                                 {'node': {
                                     'originalSrc': 'https://apps.nestscale.com/omnichat/static/img/no_image.png'}})
                         product_options.append({
-                            'product_id': data['id'],
-                            'product_name': data['title'],
+                            'id': data['id'],
+                            'name': data['title'],
                             'handle': data['handle'],
-                            'product_img': data['images']['edges'][0]['node']['originalSrc'],
+                            'image_src': data['images']['edges'][0]['node']['originalSrc'],
                             'variant_num': data['totalVariants'],
                             'product_url': data['onlineStorePreviewUrl'],
                             'price_range': self.get_price_range(
@@ -261,7 +261,7 @@ class ShopifyMint(http.Controller):
 
         media_exist = request.env['post.private'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
                                                               limit=1)
-        list_product = media_exist.get_list_product()
+        list_product = media_exist.get_list_tag_product()
         list_comment = media_exist.get_list_comment()
 
         data = {
@@ -284,7 +284,7 @@ class ShopifyMint(http.Controller):
                     products = kw['products']
                     product_ids = []
                     for product in products:
-                        product_ids.append(product['product_id'])
+                        product_ids.append(product['id'])
                     if kw.get('post_id'):
 
                         post_id = kw['post_id']
@@ -300,15 +300,15 @@ class ShopifyMint(http.Controller):
                                 hotspot.status = True
                                 remain_hotspot_ids.append(hotspot.shopify_product_id)
                         for item in products:
-                            if item['product_id'] not in remain_hotspot_ids:
+                            if item['id'] not in remain_hotspot_ids:
                                 print(item)
                                 hotspot_private.create({
-                                    'name': item['product_name'],
+                                    'name': item['name'],
                                     'admin': current_user,
                                     'post': media_exist.id,
-                                    'shopify_product_id': item['product_id'],
+                                    'shopify_product_id': item['id'],
                                     'shopify_product_handle': item['handle'],
-                                    'shopify_product_img_src': item['product_img'],
+                                    'shopify_product_img_src': item['image_src'],
                                      'shopify_product_variant_num': item['variant_num'],
                                     'shopify_product_product_url': item['product_url'],
                                     'shopify_product_price_range': item['price_range'],
@@ -343,55 +343,55 @@ class ShopifyMint(http.Controller):
 
 
 
-    @http.route('/set_tag_product', type='json', auth='user', cors='*', csrf=False, save_session=False)
-    def set_tag_product(self, **kwargs):
-        print(kwargs)
-        list_product = []
-        list_product_id = []
-        if request.jsonrequest:
-            media_exist = request.env['post.private'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
-                                                                  limit=1)
-            if len(media_exist.hotspot) <= len(request.jsonrequest['selected_product']):
-                for item in request.jsonrequest['selected_product']:
-                    product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.get('id'))], limit=1)
-                    if product:
-                        list_product.append(product.id)
-                for i in list_product:
-                    product = (4, i)  # link to an existing record
-                    list_product_id.append(product)
-                media_exist.sudo().write({
-                    "selected_product": list_product_id
-                })
-            else:
-
-                list_product_id_arr = []
-
-                for item in request.jsonrequest['selected_product']:
-                    list_product_id_arr.append(item.get('id'))
-                    product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.get('id'))],
-                                                                        limit=1)
-                    if product:
-                        list_product.append(product.id)
-
-                for item in media_exist.selected_product:
-                    if item.product_id not in list_product_id_arr:
-
-                        product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.product_id)],
-                                                                            limit=1)
-                        if product:
-                            # list_product.append(product.id)
-
-                            list_product_id.append((3, product.id))
-
-                for i in list_product:
-                    product = (4, i)  # link to an existing record
-                    list_product_id.append(product)
-
-                media_exist.sudo().write({
-                    "selected_product": list_product_id
-                })
-
-        return Response('success', 200)
+    # @http.route('/set_tag_product', type='json', auth='user', cors='*', csrf=False, save_session=False)
+    # def set_tag_product(self, **kwargs):
+    #     print(kwargs)
+    #     list_product = []
+    #     list_product_id = []
+    #     if request.jsonrequest:
+    #         media_exist = request.env['post.private'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
+    #                                                               limit=1)
+    #         if len(media_exist.hotspot) <= len(request.jsonrequest['selected_product']):
+    #             for item in request.jsonrequest['selected_product']:
+    #                 product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.get('id'))], limit=1)
+    #                 if product:
+    #                     list_product.append(product.id)
+    #             for i in list_product:
+    #                 product = (4, i)  # link to an existing record
+    #                 list_product_id.append(product)
+    #             media_exist.sudo().write({
+    #                 "selected_product": list_product_id
+    #             })
+    #         else:
+    #
+    #             list_product_id_arr = []
+    #
+    #             for item in request.jsonrequest['selected_product']:
+    #                 list_product_id_arr.append(item.get('id'))
+    #                 product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.get('id'))],
+    #                                                                     limit=1)
+    #                 if product:
+    #                     list_product.append(product.id)
+    #
+    #             for item in media_exist.selected_product:
+    #                 if item.product_id not in list_product_id_arr:
+    #
+    #                     product = request.env['hotspot.private'].sudo().search([('shopify_product_id', '=', item.id)],
+    #                                                                         limit=1)
+    #                     if product:
+    #                         # list_product.append(product.id)
+    #
+    #                         list_product_id.append((3, product.id))
+    #
+    #             for i in list_product:
+    #                 product = (4, i)  # link to an existing record
+    #                 list_product_id.append(product)
+    #
+    #             media_exist.sudo().write({
+    #                 "selected_product": list_product_id
+    #             })
+    #
+    #     return Response('success', 200)
 
     @http.route('/update_instagram_post', type='json', auth='user', cors='*', csrf=False, save_session=False)
     def update_instagram_post(self, **kwargs):

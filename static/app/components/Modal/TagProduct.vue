@@ -32,14 +32,14 @@ padding-bottom: 20px; ">
             <table style="width: 100%">
                 <div v-for="product in product_data" class="tr-container" style="display: flex;height: 5rem;
               border-top: 2px solid #e1e3e5;padding: 0px 2rem;">
-                  <tr :key="product.product_id" class="table-row" style="display: flex;gap: 2rem;
+                  <tr :key="product.id" class="table-row" style="display: flex;gap: 2rem;
 align-items: center;">
                           <td>
                             <input style="width: 1.2rem;
-height: 1.2rem;" type="checkbox" :id="product.product_id"  v-model="tempSelectedProductIds" @change="tagProduct" :value="product.product_id"/>
+height: 1.2rem;" type="checkbox" :id="product.id"  v-model="tempSelectedProductIds" @change="tagProduct" :value="product.id"/>
                           </td>
-                          <td><img :src="product.product_img" alt="" style="width: 3rem;height: 3rem;"></td>
-                          <td>{{ product.product_name }}</td>
+                          <td><img :src="product.image_src" alt="" style="width: 3rem;height: 3rem;"></td>
+                          <td>{{ product.name }}</td>
 
                        </tr>
                 </div>
@@ -111,12 +111,12 @@ export default {
             console.log(event)
             var product_id = event.target.value
             if (event.target.checked) {
-                if (this.product_data.filter(i => i.product_id === product_id).length > 0) {
-                    var product = this.product_data.filter(i => i.product_id === product_id)[0]
+                if (this.product_data.filter(i => i.id === product_id).length > 0) {
+                    var product = this.product_data.filter(i => i.id === product_id)[0]
                     this.tempSelectedProduct.push(product)
                 }
             } else {
-                this.tempSelectedProduct = this.tempSelectedProduct.filter(i => i.product_id !== product_id)
+                this.tempSelectedProduct = this.tempSelectedProduct.filter(i => i.id !== product_id)
             }
         },
       addProduct: function () {
@@ -136,8 +136,8 @@ export default {
                     //TODO self.post.products = data.products cap nhat lai product da dc select o cai modal ngoai
                     var shop_url_storage_selected = sessionStorage.getItem("selected#"+self.media_id);
                     if(shop_url_storage_selected !== null){
-                       self.$emit('watch_list_product',self.selected)
-                       sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.selected));
+                       self.$emit('watch_list_product',self.tempSelectedProduct)
+                       sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.tempSelectedProduct));
                         let index_item = 0
                         for (let i = 0; i < self.instagram_data.media_url.length; i++) {
                           if(self.instagram_data.media_url[i].media_id === self.media_id){
@@ -145,7 +145,7 @@ export default {
                              break
                            }
                         }
-                         self.instagram_data.media_url[index_item].num_of_tagged_product =  self.selected.length;
+                         self.instagram_data.media_url[index_item].num_of_tagged_product =  self.tempSelectedProduct.length;
                          self.$emit('update_instagram_data',self.instagram_data)
                     }
                     self.$emit('closeTagProduct')
@@ -240,7 +240,7 @@ export default {
                   }
                   var shop_url_storage_product_list =JSON.parse(sessionStorage.getItem("product_data"));
 
-                  if(shop_url_storage_product_list !== null ){
+                  if(shop_url_storage_product_list !== null && this.search_query_product === null){
                       this.product_data =shop_url_storage_product_list
                       this.is_loading_data = false
                 }
@@ -293,10 +293,10 @@ export default {
              for (let item of JSON.parse(shop_url_storage_selected)) {
               this.tempSelectedProductIds.push(item.id)
               this.tempSelectedProduct.push({
-                  'product_id': item.id,
-                  'product_name': item.name,
+                  'id': item.id,
+                  'name': item.name,
                   'handle': item.handle,
-                  'product_img': item.img_src,
+                  'image_src': item.image_src,
                   'variant_num': item.variant_num,
                   'product_url': item.product_url
               })

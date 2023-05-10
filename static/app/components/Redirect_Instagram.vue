@@ -141,7 +141,7 @@ export default {
 
 
 
-        }, {scope: 'pages_show_list,instagram_basic,pages_read_engagement'});
+        }, {scope: 'pages_show_list,instagram_basic,pages_read_engagement,business_management'});
 
       }
 

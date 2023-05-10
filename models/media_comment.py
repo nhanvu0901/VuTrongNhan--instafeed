@@ -14,7 +14,7 @@ class Comment(models.Model):
     comment_text = fields.Char(string="Text")
     comment_timestamp = fields.Char(string="Timestamp")
     comment_username = fields.Char(string="Comment Username")
-    media = fields.Many2one('media.source', string="Media",ondelete='cascade')
+    media = fields.Many2one('post.private', string="Media",ondelete='cascade')
 
 
     def get_comment(self):

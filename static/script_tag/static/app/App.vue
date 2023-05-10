@@ -2,7 +2,7 @@
 <template>
   <MainContentShopify @paidFeature="paidFeature" v-if="instagram_data !== ''" :instagram_data="instagram_data" @setWaiting="setWaiting" @openImageModal="openImageModal"/>
   <div v-if="is_open_image_modal">
-      <ImageModel :type="type" :shopify_url="shopify_url" :watch_list="watch_list" :media_id="media_id" :permalink="permalink" @openTagProduct="openTagProduct" @previousImage="previousImage" @nextImage="nextImage" :index="index" :instagram_data="instagram_data" :image_src="image_src" :user_name="instagram_user_name" :caption="caption" :date_created="date_created" @closeModal="closeModal"/>
+      <ImageModel :list_comment_post="list_comment" :selected_product="selected_product" :type="type" :shopify_url="shopify_url" :watch_list="watch_list" :media_id="media_id" :permalink="permalink" @openTagProduct="openTagProduct" @previousImage="previousImage" @nextImage="nextImage" :index="index" :instagram_data="instagram_data" :image_src="image_src" :user_name="instagram_user_name" :caption="caption" :date_created="date_created" @closeModal="closeModal"/>
     </div>
 
 </template>
@@ -39,7 +39,9 @@ export default {
           watch_list:'',
           type:'',
           postToShow:'',
-          displayTagPost:''
+          displayTagPost:'',
+          selected_product:[],
+          list_comment:[]
 
 
           }
@@ -66,7 +68,7 @@ export default {
    setPopUp(flag){
      this.is_open_change_acc_modal = flag
    },
-    openImageModal(type,src,index,caption,date,permalink,id){
+    openImageModal(type,src,index,caption,date,permalink,id,selected_product,list_comment){
       this.media_id = id
        this.image_src = src
         this.index = index
@@ -75,6 +77,8 @@ export default {
       this.date_created = date
       this.permalink = permalink
       this.type = type
+      this.selected_product = selected_product
+      this.list_comment = list_comment
     },
 
      setImage(previous_media,index){
@@ -83,6 +87,8 @@ export default {
         this.caption = previous_media.caption
         this.media_id = previous_media.media_id
         this.type = previous_media.type
+         this.selected_product = previous_media.selected_product
+         this.list_comment = previous_media.list_comment
          console.log(this.media_id)
     },
 

@@ -31,14 +31,7 @@ class Frontend(http.Controller):
                 list_media = []
                 if widget_exist:
                     for item in widget_exist.media_data.selected_posts_global:
-                        list_product = []
-                        for product in item.hotspot:
-                            product_data = {
-                                "product_id": product.shopify_product_id,
-                                "product_img": product.shopify_product_img_src,
-                                "product_name": product.name,
-                            }
-                            list_product.append(product_data)
+                        list_product = item.get_list_tag_product()
                         list_comment = item.get_list_comment()
                         media_data = {
                             "type": item.type,

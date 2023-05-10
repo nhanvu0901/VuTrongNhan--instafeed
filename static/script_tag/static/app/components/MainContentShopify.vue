@@ -16,7 +16,7 @@ clear: both;">
               <CarouselShop :showLikes="showLikes" :layout="layout" v-if="this.layout === 'Carousel - Gallery' || this.layout ==='Carousel - Squares' || this.layout ==='Carousel - Auto' ||this.layout ==='Carousel - Active Classes'" @openImageModal="openImageModal" :RowColumnModify="RowColumnModify"/>
 
               <div v-else v-for="(media,index) in RowColumnModify" class="instafeed-container" :class="classLayout" :style="{margin:this.spacing,width:this.calculateWidth}" >
-                  <div style="position: relative; width: 100%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.type === 'CAROUSEL_ALBUM' ? media.media_url.replace(/\[|\]/g,'').split(',')  :media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
+                  <div style="position: relative; width: 100%;" class="image-container" :data-list_comment="JSON.stringify(media.list_comment)" :data-selected_product="JSON.stringify(media.selected_product)"  :data-type="media.type" :data-id="media.media_id" :data-src="media.type === 'CAROUSEL_ALBUM' ? media.media_url.replace(/\[|\]/g,'').split(',')  :media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
                        <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
                        <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
                         <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
@@ -122,7 +122,9 @@ export default {
         const date =event.currentTarget.getAttribute("data-time");
          const permalink = event.currentTarget.getAttribute("data-permalink");
          const id = event.currentTarget.getAttribute("data-id")
-        this.$emit('openImageModal',type,src,index,caption,date,permalink,id)
+         const selected_product = event.currentTarget.getAttribute("data-selected_product")
+         const list_comment = event.currentTarget.getAttribute("data-list_comment")
+        this.$emit('openImageModal',type,src,index,caption,date,permalink,id,JSON.parse(selected_product),JSON.parse(list_comment))
      }
      else if(this.onclickPost ==="Go to Instagram"){
        const permalink = event.currentTarget.getAttribute("data-permalink")

@@ -23,11 +23,11 @@ class Facebook_data(http.Controller):
         ], limit=1)
         instagram = InstagramAPI(request)
 
-        instagram_id = instagram.get_instagram_user_id(request.jsonrequest['accessToken'],instagram_user_exist)
-        if instagram_id.get('flag') == True:
-            return json.dumps(instagram_id)
+        get_instagram_id = instagram.get_instagram_user_id(request.jsonrequest['accessToken'],instagram_user_exist)
+        if get_instagram_id.get('status') == "error":
+            return json.dumps(get_instagram_id)
         else:
-
+            instagram_id = get_instagram_id.get("message")
             if instagram_user_exist:
                 instagram_user_exist.write({
                     "facebook_access_token": request.jsonrequest['accessToken']

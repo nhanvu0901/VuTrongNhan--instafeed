@@ -63,15 +63,15 @@
             <div class="tagged-products-image">
               <object>
                 <a  style="cursor: pointer">
-                  <img class="js-lazy-image js-lazy-image--handled" :src="item.product_img" alt="product image">
+                  <img class="js-lazy-image js-lazy-image--handled" :src="item.image_src" alt="product image">
                 </a>
               </object>
             </div>
 
             <div class="tagged-products-buttons" style="text-align: center;">
               <object class="product-title">
-                <a :href="'https://'+this.shopify_url+'/products/'+item.product_name.replace(/\s/g, '-')" target="_blank">{{item.product_name}}</a>
-                <a :href="'https://'+this.shopify_url+'/products/'+item.product_name.replace(/\s/g, '-')" target="_blank"><button class="tagged-buy-button" tabindex="-1">Shop Now</button></a></object>
+                <a :href="item.product_url" target="_blank">{{item.name}}</a>
+                <a :href="item.product_url" target="_blank"><button class="tagged-buy-button" tabindex="-1">Shop Now</button></a></object>
             </div>
 
           </div>
@@ -145,6 +145,9 @@ export default {
      permalink:String,
      media_id:String,
       type:String,
+       selected_product:Array,
+       list_comment_post:Array
+
   },
    data() {
     return {
@@ -161,8 +164,8 @@ export default {
       }
       let media_active = this.instagram_data.media_url.find((item) => item.media_id === this.media_id)
       console.log(media_active)
-      this.list_tagged_product = media_active.hotspot
-      this.list_comment = media_active.list_comment
+      this.list_tagged_product = this.selected_product
+      this.list_comment = this.list_comment_post
 
 
           //
@@ -206,7 +209,13 @@ export default {
       }
       let media_active = this.instagram_data.media_url.find((item) => item.media_id === newone)
       console.log(media_active)
-      this.list_tagged_product = media_active.hotspot
+
+    },
+    selected_product(newone){
+        this.list_tagged_product = newone
+    },
+    list_comment_post(newone){
+        this.list_comment = newone
     }
 
     // whenever question changes, this function will run

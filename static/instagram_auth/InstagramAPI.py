@@ -111,13 +111,16 @@ class InstagramAPI(object):
                     instagram_id = json.loads(response_instagram.text).get('instagram_business_account').get('id')
                     if instagram_id != instagram_user_exist.user_id:
                         return {"message": "Instagtam user not valid",
-                             "flag": True}
+                             "status": "error"}
+                    else:
+                        return {"message": instagram_id,
+                             "status": "success"}
                 except Exception:
                     return {"message": "Shop not match with instagram account or not instagram for business",
-                         "flag": True}
-                return instagram_id
+                            "status": "error"}
+
             else:
-                return {"message": "Choose 1 shop that link instagram account to the store", "flag": True}
+                return {"message": "Choose 1 shop that link instagram account to the store",   "status": "error"}
 
 
 

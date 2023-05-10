@@ -63,14 +63,9 @@ class Media(models.Model):
                     }
                     list_comment.append(comment_data)
 
-                list_product = []
-                for product in media_url.hotspot:
-                    product_data = {
-                        "id": product.shopify_product_id,
-                        "image_src": product.shopify_product_img_src,
-                        "name": product.name,
-                    }
-                    list_product.append(product_data)
+                list_product = media_url.get_list_tag_product()
+
+
                 media_data = {
                     "media_id": media_url.media_id,
                     "media_url": media_url.media_url,
@@ -90,17 +85,7 @@ class Media(models.Model):
 
             return list_media
 
-    def get_post_product_tag(self):
 
-        product_list = []
-        if self.selected_posts_global:
-            for item in self.selected_posts_global.hotspot:
-                product = {
-                    "id": item.shopify_product_id,
-                    "image_src": item.shopify_product_img_src,
-                    "name": item.name
-                }
-                product_list.append(product)
 
 
 class NestWidgetPostGlobal(models.Model):
@@ -119,10 +104,13 @@ class NestWidgetPostGlobal(models.Model):
     comment = fields.One2many("media.comment", "media", string="Comment")
     admin = fields.Many2one('res.users')
 
-    def get_list_product(self):
+
+
+    def get_list_tag_product(self):
         list_product=[]
         for item in self.hotspot:
-            list_product.append(item.get_product())
+            if item.status == True:
+                list_product.append(item.get_product())
         return list_product
 
     def get_list_comment(self):
