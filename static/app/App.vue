@@ -22,7 +22,7 @@
       </div>
 
       <div v-if="is_open_image_modal">
-        <ImageModel :type="type" :watch_list="watch_list" :media_id="media_id" :permalink="permalink" @openTagProduct="openTagProduct" @previousImage="previousImage" @nextImage="nextImage" :index="index" :instagram_data="instagram_data" :image_src="image_src" :user_name="instagram_user_name" :caption="caption" :date_created="date_created" @closeModal="closeModal"/>
+        <ImageModel :type="type" :watch_list="watch_list" :post_id="post_id" :permalink="permalink" @openTagProduct="openTagProduct" @previousImage="previousImage" @nextImage="nextImage" :index="index" :instagram_data="instagram_data" :image_src="image_src" :user_name="instagram_user_name" :caption="caption" :date_created="date_created" @closeModal="closeModal"/>
       </div>
 
       <div style="width: 100%">
@@ -30,7 +30,7 @@
       </div>
 
       <div v-if="modalProductSelect">
-       <TagProduct :modalProductSelectApp="modalProductSelect" @update_instagram_data="update_instagram_data" :instagram_data="instagram_data"  @closeTagProduct="closeTagProduct" :media_id="media_id" @watch_list_product="watch_list_product"/>
+       <TagProduct :modalProductSelectApp="modalProductSelect" @update_instagram_data="update_instagram_data" :instagram_data="instagram_data"  @closeTagProduct="closeTagProduct" :post_id="post_id" @watch_list_product="watch_list_product"/>
       </div>
 
    </div>
@@ -92,7 +92,7 @@ export default {
               modalProductSelect:false,
               date_created:'',
               permalink:'',
-              media_id:'',
+              post_id:'',
               watch_list:'',
               type:'',
               postToShow:'',
@@ -140,7 +140,7 @@ export default {
         history.pushState('https://odoo.website/shopify_mint/error', '', 'https://odoo.website/shopify_mint/error');
       },
       openImageModal(type,src,index,caption,date,permalink,id){
-      this.media_id = id
+      this.post_id = id
        this.image_src = src
         this.index = index
        this.caption = caption
@@ -155,7 +155,7 @@ export default {
        this.index =index
        this.image_src = previous_media.media_url
         this.caption = previous_media.caption
-        this.media_id = previous_media.media_id
+        this.post_id = previous_media.post_id
         this.type = previous_media.type
       },
       previousImage(index){

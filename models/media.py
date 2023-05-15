@@ -4,7 +4,8 @@ from odoo import models, fields, api
 from odoo.http import request
 from odoo.tools.safe_eval import datetime
 import traceback
-
+import json
+from ..static.instagram_auth.InstagramAPI import InstagramAPI
 class Media(models.Model):
     _name = 'media.source'
     _description = 'Instagram Media'
@@ -67,11 +68,11 @@ class Media(models.Model):
 
 
                 media_data = {
-                    "media_id": media_url.media_id,
+                    "media_id": media_url.post_id,
                     "media_url": media_url.media_url,
                     "type": media_url.type,
                     "caption": media_url.caption,
-                    "permalink": media_url.permalink,
+                    "permalink": media_url.insta_profile_link,
                     "thumbnail_url": media_url.thumbnail_url,
                     "created_date": media_url.created_date,
                     "selected_product": list_product,
@@ -90,11 +91,11 @@ class Media(models.Model):
 
 class NestWidgetPostGlobal(models.Model):
     _name = 'post.private'
-    media_id = fields.Char(string="ID")
+    post_id = fields.Char(string="ID")
     media_url = fields.Char(string="media url")
     type = fields.Char(string="media type")
     caption = fields.Char(string="caption")
-    permalink = fields.Char(string="permalink")
+    insta_profile_link = fields.Char(string="insta profile link")
     thumbnail_url = fields.Char(string="thumbnail url")
     created_date = fields.Char(string="Created at")
     hotspot = fields.One2many('hotspot.private', 'post')
@@ -103,6 +104,75 @@ class NestWidgetPostGlobal(models.Model):
     count_comment = fields.Char('')
     comment = fields.One2many("media.comment", "media", string="Comment")
     admin = fields.Many2one('res.users')
+
+
+
+
+
+
+    def save_post(self, media_exist, response_url):
+        current_user = request.env.user.id
+        instagram = InstagramAPI(request)
+
+        instagram_user_exist = request.env['instagram.user'].sudo().search([
+            ('user_name', '=', json.loads(response_url.text).get("username"))
+        ], limit=1)
+        if media_exist:
+            media_exist.write({
+                "post_id": json.loads(response_url.text).get('id'),
+                "type": json.loads(response_url.text).get('media_type'),
+                "caption": json.loads(response_url.text).get('caption'),
+                "insta_profile_link": json.loads(response_url.text).get('permalink'),
+                "admin": instagram_user_exist.admin,
+                "instagram_user":instagram_user_exist.id,
+                "created_date": json.loads(response_url.text).get('timestamp'),
+                "media_like": ''
+            })
+            if json.loads(response_url.text).get('media_type') == 'CAROUSEL_ALBUM':
+
+                # call the children
+                data_child_image = instagram.get_child_media_details(json.loads(response_url.text).get(
+                        'id'),instagram_user_exist.ins_access_token)
+                child_url = data_child_image.get('child_url')
+                child_thumbnail_url =data_child_image.get('child_thumbnail_url')
+
+                media_exist.write({
+                    "media_url": child_url,
+                    "thumbnail_url": child_thumbnail_url if len(child_thumbnail_url) != 0  else '',
+                })
+            else:
+                media_exist.write({
+                    "media_url": json.loads(response_url.text).get('media_url'),
+                    "thumbnail_url": json.loads(response_url.text).get('thumbnail_url'),
+                })
+
+        else:
+            media_exist = request.env['post.private'].create({
+                "post_id": json.loads(response_url.text).get('id'),
+                "type": json.loads(response_url.text).get('media_type'),
+                "caption": json.loads(response_url.text).get('caption'),
+                "insta_profile_link": json.loads(response_url.text).get('permalink'),
+                "admin": instagram_user_exist.admin,
+                "instagram_user":instagram_user_exist.id,
+                "created_date": json.loads(response_url.text).get('timestamp'),
+                "media_like": '',
+            })
+            if json.loads(response_url.text).get('media_type') == 'CAROUSEL_ALBUM':
+                data_child_image = instagram.get_child_media_details(json.loads(response_url.text).get(
+                    'id'),instagram_user_exist.ins_access_token)
+                child_url = data_child_image.get('child_url')
+                child_thumbnail_url = data_child_image.get('child_thumbnail_url')
+
+                media_exist.write({
+                    "media_url": child_url,
+                    "thumbnail_url": child_thumbnail_url if len(child_thumbnail_url) != 0 else '',
+                })
+
+            else:
+                media_exist.write({
+                    "media_url": json.loads(response_url.text).get('media_url'),
+                    "thumbnail_url": json.loads(response_url.text).get('thumbnail_url'),
+                })
 
 
 

@@ -158,7 +158,7 @@ export default {
      instagram_data:String,
      date_created:String,
      permalink:String,
-     media_id:String
+     post_id:String
   },
    data() {
     return {
@@ -174,14 +174,12 @@ export default {
           }
            var self = this
           var xmlhttp = new XMLHttpRequest();
-          let queryString = window.location.search
-          let urlParams = new URLSearchParams(queryString)
-          this.shopify_url = urlParams.get('shop_url')
+
           xmlhttp.open("POST", "https://odoo.website/get_product_list");
           xmlhttp.setRequestHeader("Content-Type", "application/json");
           let param = {
-            shopify_url: urlParams.get('shop_url'),
-             media_id : this.media_id,
+
+             post_id : this.post_id,
           }
           xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState === 4) {
@@ -189,8 +187,8 @@ export default {
                 console.log(JSON.parse(JSON.parse(xmlhttp.responseText).result))
                 self.list_tagged_product = JSON.parse(JSON.parse(xmlhttp.responseText).result).list_product
                 self.list_comment = JSON.parse(JSON.parse(xmlhttp.responseText).result).list_comment
-                sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.list_tagged_product));
-                sessionStorage.setItem("comment#"+self.media_id,JSON.stringify(self.list_comment));
+                sessionStorage.setItem("selected#"+self.post_id,JSON.stringify(self.list_tagged_product));
+                sessionStorage.setItem("comment#"+self.post_id,JSON.stringify(self.list_comment));
               }
             }
           };
@@ -206,12 +204,12 @@ export default {
        this.list_tagged_product = newone
     },
     // whenever question changes, this function will run
-   media_id(newOne){
+   post_id(newOne){
         if(this.type === 'CAROUSEL_ALBUM'){
               this.child_carousel = this.image_src.replace(/\[|\]/g,'').split("'").filter(e => typeof e === 'string' && e !== ', ' && e !== '')
           }
 
-     console.log(this.media_id)
+
      var self = this
           var xmlhttp = new XMLHttpRequest();
           let queryString = window.location.search
@@ -221,15 +219,15 @@ export default {
           xmlhttp.setRequestHeader("Content-Type", "application/json");
           let param = {
             shopify_url: urlParams.get('shop_url'),
-             media_id : newOne,
+             post_id : newOne,
           }
           xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState === 4) {
               if (xmlhttp.status === 200) {
                 self.list_tagged_product = JSON.parse(JSON.parse(xmlhttp.responseText).result).list_product
                 self.list_comment = JSON.parse(JSON.parse(xmlhttp.responseText).result).list_comment
-                sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.list_tagged_product));
-                sessionStorage.setItem("comment#"+self.media_id,JSON.stringify(self.list_comment));
+                sessionStorage.setItem("selected#"+self.post_id,JSON.stringify(self.list_tagged_product));
+                sessionStorage.setItem("comment#"+self.post_id,JSON.stringify(self.list_comment));
               }
             }
           };

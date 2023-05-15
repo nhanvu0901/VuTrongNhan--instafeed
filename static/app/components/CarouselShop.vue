@@ -1,7 +1,7 @@
 <template>
  <Carousel v-if="this.layout ==='Carousel - Squares'">
     <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
-      <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
+      <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.post_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
            <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
            <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
             <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
@@ -43,7 +43,7 @@
 
   <Carousel :autoplay="2000" :wrap-around="true" v-else-if="this.layout ==='Carousel - Auto'">
     <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
-      <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
+      <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.post_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
            <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
           <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
             <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
@@ -81,7 +81,7 @@
 
    <Carousel itemsToShow="3.95" :wrapAround="true" :transition="500" v-else-if="this.layout ==='Carousel - Active Classes'">
     <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
-      <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
+      <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.post_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
            <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
           <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
             <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
@@ -121,7 +121,7 @@
    <div v-else-if="this.layout ==='Carousel - Gallery'">
         <Carousel id="gallery" :items-to-show="1" :wrap-around="false" v-model="currentSlide" >
             <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
-             <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
+             <div style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.post_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date" @click="openImageModal">
            <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
           <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
             <div style="width:99%;height:99%;" class="instafeed-overlay instafeed-video">
@@ -166,7 +166,7 @@
         ref="carousel"
       >
         <Slide v-for="(media,index) in this.RowColumnModify" :key="media">
-              <div @click="slideTo(index)" style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.media_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date">
+              <div @click="slideTo(index)" style="position: relative; width: 80%;height: 80%;" class="image-container"  :data-type="media.type" :data-id="media.post_id" :data-src="media.media_url"  :data-caption="media.caption" :data-index="index" :data-permalink="media.permalink" :data-time="media.created_date">
                    <img v-if="media.type !== 'CAROUSEL_ALBUM'" class="js-lazy-image js-lazy-image--handled" :src="media.type ==='VIDEO' ? media.thumbnail_url : media.media_url"    alt="Instagram post with the caption: ...">
                   <img v-else :src="media.thumbnail_url !== '' ? media.thumbnail_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, ''): media.media_url.replace(/\[|\]/g,'').split(',')[0].replace(/'/g, '')">
                 </div>

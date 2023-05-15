@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_shopify_mint,access.shopify.mint,model_shopify_mint,,1,1,1,1
+access_shopify_store,access.shopify.store,model_shopify_store,,1,1,1,1
 access_instagram_user,access.instagram.user,model_instagram_user,,1,1,1,1
 access_media_source,access.media.source,model_media_source,,1,1,1,1
 access_hotspot_private,access.hotspot.private,model_hotspot_private,,1,1,1,1

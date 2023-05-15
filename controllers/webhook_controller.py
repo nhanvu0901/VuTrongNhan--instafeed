@@ -9,7 +9,7 @@ class WebhookController(http.Controller):
             if 'app' in topic:
                 current_user = request.env.user.id
                 print(request.jsonrequest)
-                shopify_shop = request.env['shopify.mint'].sudo().search([
+                shopify_shop = request.env['shopify.store'].sudo().search([
                     ('shop_id', '=', request.jsonrequest.get('id'))
                 ], limit=1)
                 try:

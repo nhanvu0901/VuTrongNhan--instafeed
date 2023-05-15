@@ -82,8 +82,8 @@ class Auth(http.Controller):
 
             domain = shop.domain
 
-            shopify_app_enviroment = request.env['shopify.mint']
-            shopify_app_exist = request.env['shopify.mint'].sudo().search([('shop_url', '=', shop_url)], limit=1)
+            shopify_app_enviroment = request.env['shopify.store']
+            shopify_app_exist = request.env['shopify.store'].sudo().search([('shop_url', '=', shop_url)], limit=1)
 
             if access_token:
                 existing_webhooks = shopify.Webhook.find()
@@ -109,7 +109,7 @@ class Auth(http.Controller):
                     "email": shop.email,
                     "shop_name": shop.name,
                     "shop_id": shop.id,
-                    "user": current_user,
+                    "admin": current_user,
                     "currency": shop.currency,
                     "script_tag": script_tag,
                     "is_update_script_tag": True,
@@ -123,7 +123,7 @@ class Auth(http.Controller):
                     "email": shop.email,
                     "shop_name": shop.name,
                     "shop_id": shop.id,
-                    "user": current_user.id,
+                    "admin": current_user.id,
                     "currency": shop.currency,
                     "script_tag": script_tag,
                     "is_update_script_tag": True,

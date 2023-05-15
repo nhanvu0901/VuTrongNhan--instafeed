@@ -32,7 +32,7 @@ class ResConfigSettings(models.TransientModel):
 
         version = self.api_version_shopify_mint
 
-        shop_app_url = request.env['shopify.mint'].sudo().search(
+        shop_app_url = request.env['shopify.store'].sudo().search(
             [('shop_url', '=', 'instafeed-mint.myshopify.com')], limit=1)
 
         new_session = shopify.Session(shop_app_url.shop_url, version,

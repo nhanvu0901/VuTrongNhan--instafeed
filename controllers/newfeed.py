@@ -35,8 +35,8 @@ class NewFeed(http.Controller):
                 ], limit=1)
 
 
-
-                widget_exist = request.env['widget.data'].create_action()
+                name = ''
+                widget_exist = request.env['widget.data'].create_action(name)
                 list_widget = request.env['widget.data'].get_list_widget()
                 choose_widget = {
                     "hashed_id": widget_exist.hashed_id,

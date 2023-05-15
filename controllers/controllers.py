@@ -127,7 +127,7 @@ class ShopifyMint(http.Controller):
 
             # if(request.jsonrequest['media_id'])
             current_user = request.env.user.id
-            shopify_exist = request.env['shopify.mint'].sudo().search([('user', '=', current_user)], limit=1)
+            shopify_exist = request.env['shopify.store'].sudo().search([('admin', '=', current_user)], limit=1)
             shopify_exist.initShopifySession()
             limit = 10
             if shopify_exist:
@@ -259,7 +259,7 @@ class ShopifyMint(http.Controller):
     @http.route('/get_product_list', type='json', auth='none', cors='*', csrf=False, save_session=False)
     def get_product_list(self):
 
-        media_exist = request.env['post.private'].sudo().search([('media_id', '=', request.jsonrequest['media_id'])],
+        media_exist = request.env['post.private'].sudo().search([('post_id', '=', request.jsonrequest['post_id'])],
                                                               limit=1)
         list_product = media_exist.get_list_tag_product()
         list_comment = media_exist.get_list_comment()
@@ -275,8 +275,8 @@ class ShopifyMint(http.Controller):
         try:
             print(kw)
             current_user = request.env.user.id
-            shopify_app_exist = request.env['shopify.mint'].sudo().search(
-                ['&', ('user', '=', current_user), ('is_delete', '=', False)], limit=1)
+            shopify_app_exist = request.env['shopify.store'].sudo().search(
+                ['&', ('admin', '=', current_user), ('is_delete', '=', False)], limit=1)
 
             if shopify_app_exist:
                 hotspot_private = request.env['hotspot.private'].sudo()
@@ -289,7 +289,7 @@ class ShopifyMint(http.Controller):
 
                         post_id = kw['post_id']
                         media_exist = request.env['post.private'].sudo().search(
-                            [('media_id', '=', post_id)],
+                            [('post_id', '=', post_id)],
                             limit=1)
                         hotspots = hotspot_private.search([('post', '=', media_exist.id)])
                         remain_hotspot_ids = []
@@ -402,7 +402,7 @@ class ShopifyMint(http.Controller):
                 instagram_user_name = kwargs.get('instagram_user_name')
                 instagram_user_exist = request.env['instagram.user'].sudo().search(
                     ['&', ('admin', '=', current_user), ('user_name', '=', instagram_user_name)], limit=1)
-                instagram_user_exist.update_instagram_media()
+                instagram_user_exist.fetch_instagram_media()
 
                 data = instagram_user_exist.get_instagram_data_model()
                 # TODO sua phan cap nhat nay cap nhat like voi follow nx

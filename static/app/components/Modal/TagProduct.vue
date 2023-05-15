@@ -95,7 +95,7 @@ export default {
 
     },
     props: {
-     media_id:String,
+     post_id:String,
      watch_list:[],
       instagram_data:String,
       modalProductSelectApp:Boolean
@@ -127,20 +127,20 @@ export default {
                 params: {
 
                     products: this.tempSelectedProduct,
-                    post_id: this.media_id
+                    post_id: this.post_id
                 }
             }).then(function (response) {
                 var data = response.data.result
                 console.log(data)
                 if (data.code === 0) {
                     //TODO self.post.products = data.products cap nhat lai product da dc select o cai modal ngoai
-                    var shop_url_storage_selected = sessionStorage.getItem("selected#"+self.media_id);
+                    var shop_url_storage_selected = sessionStorage.getItem("selected#"+self.post_id);
                     if(shop_url_storage_selected !== null){
                        self.$emit('watch_list_product',self.tempSelectedProduct)
-                       sessionStorage.setItem("selected#"+self.media_id,JSON.stringify(self.tempSelectedProduct));
+                       sessionStorage.setItem("selected#"+self.post_id,JSON.stringify(self.tempSelectedProduct));
                         let index_item = 0
                         for (let i = 0; i < self.instagram_data.media_url.length; i++) {
-                          if(self.instagram_data.media_url[i].media_id === self.media_id){
+                          if(self.instagram_data.media_url[i].post_id === self.post_id){
                              index_item =i
                              break
                            }
@@ -284,12 +284,13 @@ export default {
     },
     mounted() {
      this.modalProductSelect = this.modalProductSelectApp
-      var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);
+      var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.post_id);
 
 
       this.tempSelectedProduct = []
       this.tempSelectedProductIds = []
-        if(JSON.parse(shop_url_storage_selected).length  !== 0){
+      if(JSON.parse(shop_url_storage_selected) !== null){
+          if(JSON.parse(shop_url_storage_selected).length  !== 0){
              for (let item of JSON.parse(shop_url_storage_selected)) {
               this.tempSelectedProductIds.push(item.id)
               this.tempSelectedProduct.push({
@@ -302,6 +303,7 @@ export default {
               })
           }
         }
+      }
 
      // var shop_url_storage_product_list = sessionStorage.getItem("product_data");
      // var shop_url_storage_selected = sessionStorage.getItem("selected#"+this.media_id);

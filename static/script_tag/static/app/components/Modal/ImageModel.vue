@@ -143,7 +143,7 @@ export default {
      instagram_data:String,
      date_created:String,
      permalink:String,
-     media_id:String,
+     post_id:String,
       type:String,
        selected_product:Array,
        list_comment_post:Array
@@ -162,7 +162,7 @@ export default {
       if(this.type === 'CAROUSEL_ALBUM'){
             this.child_carousel = this.image_src.replace(/\[|\]/g,'').split("'").filter(e => typeof e === 'string' && e !== ', ' && e !== '')
       }
-      let media_active = this.instagram_data.media_url.find((item) => item.media_id === this.media_id)
+      let media_active = this.instagram_data.media_url.find((item) => item.post_id === this.post_id)
       console.log(media_active)
       this.list_tagged_product = this.selected_product
       this.list_comment = this.list_comment_post
@@ -203,11 +203,11 @@ export default {
     watch_list(newone){
        this.list_tagged_product = newone
     },
-    media_id(newone){
+    post_id(newone){
      if(this.type === 'CAROUSEL_ALBUM'){
           this.child_carousel = this.image_src.replace(/\[|\]/g,'').split("'").filter(e => typeof e === 'string' && e !== ', ' && e !== '')
       }
-      let media_active = this.instagram_data.media_url.find((item) => item.media_id === newone)
+      let media_active = this.instagram_data.media_url.find((item) => item.post_id === newone)
       console.log(media_active)
 
     },

@@ -44,7 +44,7 @@ class InstagramAPI(object):
 
     def get_instagram_user_name(self, user_id, access_token):
         response_username = requests.get(
-            'https://graph.instagram.com/' + user_id + '?fields=id,username&access_token=' + access_token)
+            'https://graph.instagram.com/' + user_id + '?fields=username&access_token=' + access_token)
         data_username = json.loads(response_username.text).get("username")
         return data_username
 
@@ -55,21 +55,21 @@ class InstagramAPI(object):
 
     def get_details_instagram_media(self, data, ins_access_token):
         response_url = requests.get('https://graph.instagram.com/' + data.get(
-            'id') + '?fields=id,media_type,media_url,username,timestamp,caption,permalink,thumbnail_url&access_token=' + ins_access_token)
+            'id') + '?fields=id,media_type,media_url,username,timestamp,caption,permalink,thumbnail_url&access_token=' + ins_access_token+"&limit=20")
         return response_url
 
     def get_like_comment(self, user_id, facebook_access_token):
         response_instagram_data = requests.get(
-            'https://graph.facebook.com/v16.0/' + user_id + '?fields=followers_count,media{like_count,comments_count,comments{text,username,timestamp}}&access_token=' +
+            'https://graph.facebook.com/v16.0/' + user_id + '?fields=profile_picture_url,followers_count,media{like_count,comments_count,comments{text,username,timestamp}}&access_token=' +
             facebook_access_token)
         return response_instagram_data
 
-    def get_child_media_details(self, media_id, ins_access_token):
+    def get_child_media_details(self, post_id, ins_access_token):
         child_url = []
         child_thumbnail_url = []
         try:
             response_children = requests.get(
-                'https://graph.instagram.com/' + media_id + '/children?fields=id,media_type,media_url,permalink,thumbnail_url&access_token=' + ins_access_token)
+                'https://graph.instagram.com/' + post_id + '/children?fields=id,media_type,media_url,permalink,thumbnail_url&access_token=' + ins_access_token)
             if response_children.ok:
                 for item in json.loads(response_children.text).get('data'):
                     child_url.append(item.get('media_url'))

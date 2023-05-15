@@ -4,7 +4,7 @@
 
     <record model="ir.ui.view" id="shopify_app_shopify_mint">
       <field name="name">Shopify Mint App</field>
-      <field name="model">shopify.mint</field>
+      <field name="model">shopify.store</field>
       <field name="arch" type="xml">
         <tree>
              <field name="shop_url"/>
@@ -13,8 +13,8 @@
 <!--             <field name="cdn_tag"/>-->
             <field name="email"/>
             <field name="shop_name"/>
-            <field name="shop_id"/>
-            <field name="user"/>
+                <field name="shop_id"/>
+            <field name="admin"/>
             <field name="currency" />
             <field name="script_tag"/>
             <field name="is_update_script_tag" />
@@ -30,7 +30,7 @@
 
     <record model="ir.actions.act_window" id="shopify_app_shopify_mint_action">
       <field name="name">Shopify Mint action</field>
-      <field name="res_model">shopify.mint</field>
+      <field name="res_model">shopify.store</field>
       <field name="view_mode">tree,form</field>
     </record>
 

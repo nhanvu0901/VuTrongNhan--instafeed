@@ -36,11 +36,13 @@ class Facebook_data(http.Controller):
 
                 if response_instagram_data:
                     instagram_user_exist.write({
-                        "followers": json.loads(response_instagram_data.text).get('followers_count')
+                        "followers": json.loads(response_instagram_data.text).get('followers_count'),
+                        "url_image":json.loads(response_instagram_data.text).get('profile_picture_url')
+
                     })
                     for data in json.loads(response_instagram_data.text).get('media').get('data'):
                         media_exist = request.env['post.private'].sudo().search(
-                            [('media_id', '=', data.get('id'))], limit=1)
+                            [('post_id', '=', data.get('id'))], limit=1)
 
                         if data.get('comments'):
                             # TODO unlink the all old comment

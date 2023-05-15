@@ -15,7 +15,7 @@
             <field name="user_name"/>
 <!--            <field name="media_url"/>-->
              <field name="admin"/>
-<!--            <field name="media"/>-->
+            <field name="url_image"/>
 <!--            <field name="widget_data"/>-->
             <field name="followers"/>
             <field name="facebook_access_token"/>

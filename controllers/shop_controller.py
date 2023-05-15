@@ -19,7 +19,7 @@ class Frontend(http.Controller):
     def get_data_to_store(self, **kwargs):
         print(request.jsonrequest)
 
-        shopify_shop_exist = request.env['shopify.mint'].sudo().search(
+        shopify_shop_exist = request.env['shopify.store'].sudo().search(
             [('shop_url', '=', request.jsonrequest.get('shop_url'))])
         instagram_user = request.env['instagram.user'].sudo().search(
             [('admin', '=',shopify_shop_exist.user.id )])
@@ -36,12 +36,12 @@ class Frontend(http.Controller):
                         media_data = {
                             "type": item.type,
                             "caption": item.caption,
-                            "permalink": item.permalink,
+                            "permalink": item.insta_profile_link,
                             "thumbnail_url": item.thumbnail_url,
                             "created_date": item.created_date,
                             "selected_product": list_product,
                             'media_url': item.media_url,
-                            "media_id": item.media_id,
+                            "post_id": item.post_id,
                             "media_like": item.media_like,
                             "num_of_tagged_product": len(item.hotspot),
                             "list_comment": list_comment,
